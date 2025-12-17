@@ -8,11 +8,27 @@
  */
 
 const getApiBaseUrl = (): string => {
+  // Helper function to normalize URL (ensure it has protocol)
+  const normalizeUrl = (url: string): string => {
+    // Remove any trailing slashes
+    url = url.trim().replace(/\/+$/, '');
+    
+    // If URL doesn't start with http:// or https://, add https://
+    if (!url.match(/^https?:\/\//i)) {
+      console.warn('[API Config] URL missing protocol, adding https://');
+      url = `https://${url}`;
+    }
+    
+    return url;
+  };
+  
   // Check for environment variable first
   if (import.meta.env.VITE_API_URL) {
-    const envUrl = import.meta.env.VITE_API_URL;
-    console.log('[API Config] Using VITE_API_URL from environment:', envUrl);
-    return envUrl;
+    const envUrl = import.meta.env.VITE_API_URL.trim();
+    console.log('[API Config] Using VITE_API_URL from environment (raw):', envUrl);
+    const normalizedUrl = normalizeUrl(envUrl);
+    console.log('[API Config] Using VITE_API_URL from environment (normalized):', normalizedUrl);
+    return normalizedUrl;
   }
   
   // Production backend domain

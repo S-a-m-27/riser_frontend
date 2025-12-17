@@ -16,6 +16,10 @@ import {
     Brain,
     Zap,
     Cpu,
+    Droplets,
+    Cloud,
+    Flame,
+    AlertTriangle,
 } from 'lucide-react';
 import Button from '../components/ui/Button';
 import { Card, CardContent } from '../components/ui/Card';
@@ -163,54 +167,133 @@ const Landing: React.FC = () => {
                             </motion.div>
                         </motion.div>
 
-                        {/* RISER Logo */}
+                        {/* Four Categories Display */}
                         <motion.div
-                            animate={{
-                                y: [0, -8, 0],
-                                scale: [1, 1.01, 1],
-                            }}
-                            transition={{
-                                duration: 3,
-                                repeat: Infinity,
-                                ease: 'easeInOut',
-                            }}
-                            className="inline-block mb-6 md:mb-8 relative"
+                            variants={itemVariants}
+                            className="mb-8 md:mb-12"
                         >
-                            {/* Floating AI particles around logo */}
-                            {[...Array(6)].map((_, i) => (
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-4xl mx-auto">
+                                {/* Flood Category */}
                                 <motion.div
-                                    key={i}
-                                    className="absolute"
-                                    style={{
-                                        left: `${20 + i * 15}%`,
-                                        top: `${-10 + (i % 2) * 20}%`,
-                                    }}
-                                    animate={{
-                                        y: [0, -15, 0],
-                                        opacity: [0.3, 0.7, 0.3],
-                                        scale: [0.8, 1, 0.8],
-                                    }}
-                                    transition={{
-                                        duration: 2 + i * 0.3,
-                                        repeat: Infinity,
-                                        ease: "easeInOut",
-                                        delay: i * 0.2,
-                                    }}
+                                    whileHover={{ scale: 1.05, y: -5 }}
+                                    className="relative group"
                                 >
-                                    <Cpu className="w-3 h-3 text-purple-500 opacity-60" />
+                                    <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border-2 border-blue-200 dark:border-blue-800 hover:border-blue-400 dark:hover:border-blue-600 transition-all duration-300 cursor-pointer">
+                                        <CardContent className="p-6 md:p-8 text-center">
+                                            <motion.div
+                                                animate={{
+                                                    y: [0, -8, 0],
+                                                }}
+                                                transition={{
+                                                    duration: 2.5,
+                                                    repeat: Infinity,
+                                                    ease: "easeInOut",
+                                                }}
+                                                className="mb-4"
+                                            >
+                                                <Droplets className="w-12 h-12 md:w-16 md:h-16 text-blue-600 dark:text-blue-400 mx-auto" />
+                                            </motion.div>
+                                            <h3 className="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+                                                Flood
+                                            </h3>
+                                            <p className="text-sm md:text-base text-slate-600 dark:text-slate-400">
+                                                Water Safety
+                                            </p>
+                                        </CardContent>
+                                    </Card>
                                 </motion.div>
-                            ))}
-                            
-                            <img 
-                                src="/images/riser-logo.svg" 
-                                alt="RISER Logo" 
-                                className="h-24 md:h-36 lg:h-44 mx-auto drop-shadow-2xl relative z-10"
-                                style={{ 
-                                    filter: 'drop-shadow(0 10px 20px rgba(0, 0, 0, 0.15))',
-                                    maxWidth: '100%',
-                                    height: 'auto'
-                                }}
-                            />
+
+                                {/* Storm Category */}
+                                <motion.div
+                                    whileHover={{ scale: 1.05, y: -5 }}
+                                    className="relative group"
+                                >
+                                    <Card className="bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-800/20 dark:to-gray-800/20 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600 transition-all duration-300 cursor-pointer">
+                                        <CardContent className="p-6 md:p-8 text-center">
+                                            <motion.div
+                                                animate={{
+                                                    rotate: [0, 5, -5, 0],
+                                                }}
+                                                transition={{
+                                                    duration: 3,
+                                                    repeat: Infinity,
+                                                    ease: "easeInOut",
+                                                }}
+                                                className="mb-4"
+                                            >
+                                                <Cloud className="w-12 h-12 md:w-16 md:h-16 text-slate-600 dark:text-slate-400 mx-auto" />
+                                            </motion.div>
+                                            <h3 className="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+                                                Storm
+                                            </h3>
+                                            <p className="text-sm md:text-base text-slate-600 dark:text-slate-400">
+                                                Weather Safety
+                                            </p>
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
+
+                                {/* Fire Category */}
+                                <motion.div
+                                    whileHover={{ scale: 1.05, y: -5 }}
+                                    className="relative group"
+                                >
+                                    <Card className="bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 border-2 border-orange-200 dark:border-orange-800 hover:border-orange-400 dark:hover:border-orange-600 transition-all duration-300 cursor-pointer">
+                                        <CardContent className="p-6 md:p-8 text-center">
+                                            <motion.div
+                                                animate={{
+                                                    scale: [1, 1.1, 1],
+                                                    opacity: [0.9, 1, 0.9],
+                                                }}
+                                                transition={{
+                                                    duration: 2,
+                                                    repeat: Infinity,
+                                                    ease: "easeInOut",
+                                                }}
+                                                className="mb-4"
+                                            >
+                                                <Flame className="w-12 h-12 md:w-16 md:h-16 text-orange-600 dark:text-orange-400 mx-auto" />
+                                            </motion.div>
+                                            <h3 className="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+                                                Fire
+                                            </h3>
+                                            <p className="text-sm md:text-base text-slate-600 dark:text-slate-400">
+                                                Fire Safety
+                                            </p>
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
+
+                                {/* Earthquake Category */}
+                                <motion.div
+                                    whileHover={{ scale: 1.05, y: -5 }}
+                                    className="relative group"
+                                >
+                                    <Card className="bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 border-2 border-amber-200 dark:border-amber-800 hover:border-amber-400 dark:hover:border-amber-600 transition-all duration-300 cursor-pointer">
+                                        <CardContent className="p-6 md:p-8 text-center">
+                                            <motion.div
+                                                animate={{
+                                                    x: [0, 2, -2, 0],
+                                                }}
+                                                transition={{
+                                                    duration: 2.5,
+                                                    repeat: Infinity,
+                                                    ease: "easeInOut",
+                                                }}
+                                                className="mb-4"
+                                            >
+                                                <AlertTriangle className="w-12 h-12 md:w-16 md:h-16 text-amber-600 dark:text-amber-400 mx-auto" />
+                                            </motion.div>
+                                            <h3 className="text-lg md:text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+                                                Earthquake
+                                            </h3>
+                                            <p className="text-sm md:text-base text-slate-600 dark:text-slate-400">
+                                                Seismic Safety
+                                            </p>
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
+                            </div>
                         </motion.div>
 
                         {/* Headline */}
