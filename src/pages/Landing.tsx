@@ -15,7 +15,6 @@ import {
     Users,
     Brain,
     Zap,
-    Cpu,
     Droplets,
     Cloud,
     Flame,
