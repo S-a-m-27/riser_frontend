@@ -1,0 +1,120 @@
+<svg width="320" height="100" viewBox="0 0 320 100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradient for text -->
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#2563eb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:1" />
+    </linearGradient>
+    <!-- Shadow filter -->
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="2" dy="2" stdDeviation="2" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  
+  <!-- RISER Text with gradient and shadow -->
+  <text 
+    x="0" 
+    y="58" 
+    font-family="'Arial Black', 'Arial Bold', Arial, sans-serif" 
+    font-size="52" 
+    font-weight="900" 
+    fill="url(#textGradient)" 
+    letter-spacing="-1.5"
+    filter="url(#shadow)"
+  >
+    RISER
+  </text>
+  
+  <!-- Square icon positioned to the right with more spacing -->
+  <g transform="translate(220, 20)">
+    <!-- Main square with rounded corners and shadow -->
+    <rect 
+      x="0" 
+      y="0" 
+      width="60" 
+      height="60" 
+      rx="4"
+      fill="white" 
+      stroke="#1e293b" 
+      stroke-width="3.5"
+      filter="url(#shadow)"
+    />
+    
+    <!-- Horizontal divider -->
+    <line x1="0" y1="30" x2="60" y2="30" stroke="#1e293b" stroke-width="3.5"/>
+    
+    <!-- Vertical divider -->
+    <line x1="30" y1="0" x2="30" y2="60" stroke="#1e293b" stroke-width="3.5"/>
+    
+    <!-- Top-left: Tornado/Hurricane (improved swirling symbol) -->
+    <g transform="translate(15, 10)">
+      <circle cx="0" cy="0" r="7" fill="none" stroke="#6b7280" stroke-width="2.5" opacity="0.8"/>
+      <path d="M -5 -5 Q 0 0 5 -5 Q 5 5 0 0 Q -5 5 -5 -5" 
+            fill="none" 
+            stroke="#6b7280" 
+            stroke-width="2.5" 
+            opacity="0.9"/>
+      <circle cx="0" cy="0" r="3" fill="#9ca3af" opacity="0.6"/>
+    </g>
+    
+    <!-- Top-right: Fire (enhanced flames) -->
+    <g transform="translate(45, 10)">
+      <path d="M 8 12 L 3 3 L 8 1 L 13 3 Z" fill="#ef4444"/>
+      <path d="M 8 12 L 4 6 L 8 3 L 12 6 Z" fill="#f97316"/>
+      <path d="M 8 12 L 5 8 L 8 5 L 11 8 Z" fill="#fb923c"/>
+      <path d="M 8 12 L 6 10 L 8 7 L 10 10 Z" fill="#fbbf24"/>
+      <!-- Small flame details -->
+      <ellipse cx="6" cy="4" rx="1.5" ry="2" fill="#fbbf24" opacity="0.8"/>
+      <ellipse cx="10" cy="4" rx="1.5" ry="2" fill="#fbbf24" opacity="0.8"/>
+    </g>
+    
+    <!-- Bottom-left: Flood (improved wavy water) -->
+    <g transform="translate(15, 45)">
+      <path d="M -8 8 Q -4 4 0 8 Q 4 12 8 8" 
+            fill="none" 
+            stroke="#3b82f6" 
+            stroke-width="3"
+            stroke-linecap="round"/>
+      <path d="M -6 12 Q -2 8 2 12 Q 6 16 10 12" 
+            fill="none" 
+            stroke="#2563eb" 
+            stroke-width="3"
+            stroke-linecap="round"/>
+      <path d="M -8 8 Q -4 4 0 8 Q 4 12 8 8 L 8 15 L -8 15 Z" 
+            fill="#60a5fa" 
+            opacity="0.5"/>
+      <!-- Water droplets -->
+      <circle cx="-4" cy="10" r="1.5" fill="#3b82f6" opacity="0.7"/>
+      <circle cx="4" cy="10" r="1.5" fill="#3b82f6" opacity="0.7"/>
+    </g>
+    
+    <!-- Bottom-right: Damaged house (enhanced details) -->
+    <g transform="translate(45, 45)">
+      <!-- House base -->
+      <rect x="4" y="8" width="8" height="7" fill="#92400e" stroke="#78350f" stroke-width="0.8"/>
+      <!-- Door -->
+      <rect x="6.5" y="11" width="3" height="4" fill="#78350f"/>
+      <circle cx="8.5" cy="13" r="0.5" fill="#a16207"/>
+      <!-- Window -->
+      <rect x="5" y="9.5" width="2" height="2" fill="#fef3c7" stroke="#78350f" stroke-width="0.5"/>
+      <rect x="9" y="9.5" width="2" height="2" fill="#fef3c7" stroke="#78350f" stroke-width="0.5"/>
+      <!-- Broken roof with more detail -->
+      <path d="M 2 8 L 8 2 L 14 8 L 10 8 L 8 4 L 6 8 Z" fill="#a16207" stroke="#78350f" stroke-width="0.5"/>
+      <line x1="8" y1="2" x2="10" y2="8" stroke="#78350f" stroke-width="1.5"/>
+      <!-- Cracks in roof -->
+      <line x1="10" y1="4" x2="12" y2="8" stroke="#78350f" stroke-width="1"/>
+      <line x1="6" y1="4" x2="4" y2="8" stroke="#78350f" stroke-width="0.8"/>
+      <!-- Roof tiles detail -->
+      <line x1="5" y1="5" x2="11" y2="5" stroke="#92400e" stroke-width="0.5" opacity="0.6"/>
+    </g>
+    
+    <!-- Center: White circle with red plus (enhanced) -->
+    <circle cx="30" cy="30" r="14" fill="white" stroke="#1e293b" stroke-width="3.5"/>
+    <!-- Plus sign with rounded ends -->
+    <line x1="30" y1="18" x2="30" y2="42" stroke="#dc2626" stroke-width="4.5" stroke-linecap="round"/>
+    <line x1="18" y1="30" x2="42" y2="30" stroke="#dc2626" stroke-width="4.5" stroke-linecap="round"/>
+    <!-- Inner highlight on plus -->
+    <line x1="30" y1="20" x2="30" y2="40" stroke="#fca5a5" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+    <line x1="20" y1="30" x2="40" y2="30" stroke="#fca5a5" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+  </g>
+</svg>

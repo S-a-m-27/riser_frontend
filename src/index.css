@@ -1,0 +1,150 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    * {
+        @apply border-slate-200 dark:border-slate-700;
+    }
+
+    body {
+        @apply bg-gradient-to-br from-blue-50 via-white to-green-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 text-slate-900 dark:text-slate-100;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        font-size: 1.125rem;
+        /* Larger base font for kid-friendly UI */
+        line-height: 1.7;
+        /* Accessible line height */
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        @apply font-bold;
+        letter-spacing: -0.02em;
+        line-height: 1.4;
+        /* Tighter line height for headings */
+    }
+
+    /* CSS Variables for motion durations */
+    :root {
+        --motion-duration-fast: 0.2s;
+        --motion-duration-normal: 0.3s;
+        --motion-duration-slow: 0.5s;
+        --motion-duration-slower: 0.8s;
+    }
+
+    /* Respect reduced motion preference */
+    @media (prefers-reduced-motion: reduce) {
+
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+}
+
+@layer utilities {
+    .text-gradient {
+        @apply bg-gradient-to-r from-blue-600 via-green-500 to-yellow-500 bg-clip-text text-transparent;
+    }
+
+    .shadow-glow {
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+    }
+
+    .shadow-glow-green {
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+    }
+
+    /* Kid-friendly touch targets - minimum 44px */
+    .touch-target {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    /* Skip to content link for accessibility */
+    .skip-to-content {
+        @apply sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-xl;
+    }
+
+    /* Custom Scrollbar Styles */
+    .custom-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(148, 163, 184, 0.5) transparent;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+        border-radius: 10px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(148, 163, 184, 0.4);
+        border-radius: 10px;
+        border: 2px solid transparent;
+        background-clip: padding-box;
+        transition: background 0.2s ease;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(148, 163, 184, 0.6);
+        background-clip: padding-box;
+    }
+
+    /* Dark theme scrollbar */
+    .dark .custom-scrollbar {
+        scrollbar-color: rgba(203, 213, 225, 0.4) transparent;
+    }
+
+    .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(203, 213, 225, 0.3);
+        background-clip: padding-box;
+    }
+
+    .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(203, 213, 225, 0.5);
+        background-clip: padding-box;
+    }
+
+    /* Scrollbar for light backgrounds (like status sidebar) */
+    .custom-scrollbar-light {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(71, 85, 105, 0.4) transparent;
+    }
+
+    .custom-scrollbar-light::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    .custom-scrollbar-light::-webkit-scrollbar-track {
+        background: transparent;
+        border-radius: 10px;
+    }
+
+    .custom-scrollbar-light::-webkit-scrollbar-thumb {
+        background: rgba(71, 85, 105, 0.3);
+        border-radius: 10px;
+        border: 2px solid transparent;
+        background-clip: padding-box;
+        transition: background 0.2s ease;
+    }
+
+    .custom-scrollbar-light::-webkit-scrollbar-thumb:hover {
+        background: rgba(71, 85, 105, 0.5);
+        background-clip: padding-box;
+    }
+}
