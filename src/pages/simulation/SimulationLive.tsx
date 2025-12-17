@@ -58,7 +58,7 @@ const SimulationLive: React.FC = () => {
 
     // API state
     const [sessionId, setSessionId] = useState<string | null>(null);
-    const [lastSceneKey, setLastSceneKey] = useState<string | null>(null);
+    const [, setLastSceneKey] = useState<string | null>(null);
     const [sceneData, setSceneData] = useState<SceneData | null>(null);
     const isRefreshingScene = useRef(false); // Prevent multiple simultaneous scene refreshes
     const [isLoading, setIsLoading] = useState(true);

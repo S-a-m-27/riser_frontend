@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Check, X, AlertTriangle, MessageCircle, Loader2, ThumbsUp, ThumbsDown, HelpCircle } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogClose } from '../../components/ui/Dialog';

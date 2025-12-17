@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, X, Droplets, ArrowRight, Loader2, AlertTriangle } from 'lucide-react';
+import { Check, Droplets, ArrowRight, Loader2, AlertTriangle } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import { Card, CardContent } from '../../components/ui/Card';
 import { ROUTES } from '../../router/routeMap';
@@ -234,8 +234,7 @@ const FloodQuiz: React.FC = () => {
         );
     }
 
-    // Sort questions and options by order
-    const sortedQuestions = [...quizData.questions].sort((a, b) => a.order - b.order);
+    // Sort options by order
     const sortedOptions = currentQuestion.options.sort((a, b) => a.order - b.order);
 
     const containerVariants = {

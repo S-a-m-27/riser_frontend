@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Check, X, ArrowUp, ArrowDown, ArrowRight, Loader2, AlertTriangle, Trophy, RotateCcw } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Check, ArrowUp, ArrowDown, ArrowRight, Loader2, AlertTriangle, Trophy, RotateCcw } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import { Card, CardContent } from '../../components/ui/Card';
 import { ROUTES } from '../../router/routeMap';

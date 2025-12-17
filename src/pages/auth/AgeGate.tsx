@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Calendar, ArrowRight } from 'lucide-react';
 import KidButton from '../../components/ui/Button.kid';
 import KidInput from '../../components/ui/Input.kid';
-import { KidCard, KidCardContent, KidCardHeader, KidCardTitle } from '../../components/ui/Card.kid';
+import { KidCardTitle } from '../../components/ui/Card.kid';
 import { useUserStore } from '../../store/userStore';
 import { kidCopy } from '../../utils/kidCopy';
 import ParentalConsentModal from '../../components/ParentalConsentModal';

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HelpCircle, X } from 'lucide-react';
 import { Dialog, DialogPanel } from '@headlessui/react';
-import { KidCard, KidCardContent, KidCardHeader, KidCardTitle } from './ui/Card.kid';
 import { kidCopy } from '../utils/kidCopy';
 
 /**
@@ -55,7 +54,6 @@ const HelpBubble: React.FC = () => {
                                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                                transition={{ duration: 0.2 }}
                                 className="w-full max-w-md pointer-events-auto"
                             >
                                 {/* Modal Content - Dark blue-gray background with blue border */}

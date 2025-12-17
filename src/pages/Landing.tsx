@@ -8,7 +8,6 @@ import {
     PlayCircle,
     Award,
     LifeBuoy,
-    CheckCircle,
     Sparkles,
     ArrowRight,
     Heart,

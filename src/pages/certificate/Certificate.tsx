@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Download, Award, CheckCircle, Share2, ArrowLeft, Trophy, Target, Brain, Loader2, AlertTriangle } from 'lucide-react';
+import { Download, Award, Share2, ArrowLeft, Trophy, Target, Brain, Loader2, AlertTriangle } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import { Card, CardContent } from '../../components/ui/Card';
 import { useUserStore } from '../../store/userStore';
