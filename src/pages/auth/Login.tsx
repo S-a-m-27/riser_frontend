@@ -22,7 +22,10 @@ const Login: React.FC = () => {
 
         try {
             console.log('API: Login request', { email });
-            const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+            const apiUrl = `${API_BASE_URL}/api/auth/login`;
+            console.log('[Login API] Base URL:', API_BASE_URL);
+            console.log('[Login API] Full URL:', apiUrl);
+            const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

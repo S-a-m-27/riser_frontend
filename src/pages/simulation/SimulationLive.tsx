@@ -119,7 +119,9 @@ const SimulationLive: React.FC = () => {
             }
 
             const url = `${API_BASE_URL}/simulation/scene/${sessionId}`;
-            console.log('Fetching scene from URL:', url);
+            console.log('[SimulationLive API] Base URL:', API_BASE_URL);
+            console.log('[SimulationLive API] Full URL:', url);
+            console.log('[SimulationLive API] Fetching scene from URL:', url);
 
             const response = await fetch(url, {
                 method: 'GET',

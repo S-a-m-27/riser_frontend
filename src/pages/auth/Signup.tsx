@@ -78,7 +78,10 @@ const Signup: React.FC = () => {
 
         try {
             console.log('API: Signup request', { email, hasName: !!name });
-            const response = await fetch(`${API_BASE_URL}/api/auth/signup`, {
+            const apiUrl = `${API_BASE_URL}/api/auth/signup`;
+            console.log('[Signup API] Base URL:', API_BASE_URL);
+            console.log('[Signup API] Full URL:', apiUrl);
+            const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

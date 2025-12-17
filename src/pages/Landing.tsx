@@ -204,7 +204,7 @@ const Landing: React.FC = () => {
                             <img 
                                 src="/images/riser-logo.svg" 
                                 alt="RISER Logo" 
-                                className="h-20 md:h-28 lg:h-32 mx-auto drop-shadow-2xl relative z-10"
+                                className="h-24 md:h-36 lg:h-44 mx-auto drop-shadow-2xl relative z-10"
                                 style={{ 
                                     filter: 'drop-shadow(0 10px 20px rgba(0, 0, 0, 0.15))',
                                     maxWidth: '100%',

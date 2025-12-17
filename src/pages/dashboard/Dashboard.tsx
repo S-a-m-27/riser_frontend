@@ -89,8 +89,11 @@ const Dashboard: React.FC = () => {
             setError(null);
 
             try {
-                console.log('API: Fetching dashboard data');
-                const response = await fetch(`${API_BASE_URL}/api/dashboard`, {
+                const apiUrl = `${API_BASE_URL}/api/dashboard`;
+                console.log('[Dashboard API] Base URL:', API_BASE_URL);
+                console.log('[Dashboard API] Full URL:', apiUrl);
+                console.log('[Dashboard API] Fetching dashboard data');
+                const response = await fetch(apiUrl, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,

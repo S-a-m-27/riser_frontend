@@ -1,120 +1,180 @@
-<svg width="320" height="100" viewBox="0 0 320 100" xmlns="http://www.w3.org/2000/svg">
+<svg width="520" height="160" viewBox="0 0 520 160" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <!-- Gradient for text -->
+    <!-- Gradient for text - matches UI -->
     <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" style="stop-color:#2563eb;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#06b6d4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#14b8a6;stop-opacity:1" />
     </linearGradient>
+    
+    <!-- Gradient for icon background -->
+    <linearGradient id="iconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:0.1" />
+      <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:0.15" />
+    </linearGradient>
+    
     <!-- Shadow filter -->
     <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
-      <feDropShadow dx="2" dy="2" stdDeviation="2" flood-opacity="0.3"/>
+      <feDropShadow dx="3" dy="3" stdDeviation="4" flood-opacity="0.25"/>
+    </filter>
+    
+    <!-- Glow effect -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
     </filter>
   </defs>
   
-  <!-- RISER Text with gradient and shadow -->
+  <!-- RISER Text with gradient - Modern, bold typography -->
   <text 
     x="0" 
-    y="58" 
-    font-family="'Arial Black', 'Arial Bold', Arial, sans-serif" 
-    font-size="52" 
+    y="95" 
+    font-family="'Inter', 'Arial Black', Arial, sans-serif" 
+    font-size="82" 
     font-weight="900" 
     fill="url(#textGradient)" 
-    letter-spacing="-1.5"
+    letter-spacing="-2.5"
     filter="url(#shadow)"
   >
     RISER
   </text>
   
-  <!-- Square icon positioned to the right with more spacing -->
-  <g transform="translate(220, 20)">
-    <!-- Main square with rounded corners and shadow -->
+  <!-- Modern Icon Container - Rounded square with gradient background -->
+  <g transform="translate(360, 25)">
+    <!-- Background with gradient and rounded corners -->
     <rect 
       x="0" 
       y="0" 
-      width="60" 
-      height="60" 
-      rx="4"
-      fill="white" 
-      stroke="#1e293b" 
-      stroke-width="3.5"
+      width="110" 
+      height="110" 
+      rx="12"
+      fill="url(#iconGradient)" 
+      stroke="url(#textGradient)" 
+      stroke-width="4"
       filter="url(#shadow)"
+      opacity="0.95"
     />
     
-    <!-- Horizontal divider -->
-    <line x1="0" y1="30" x2="60" y2="30" stroke="#1e293b" stroke-width="3.5"/>
+    <!-- Grid dividers - Subtle and modern -->
+    <line x1="0" y1="55" x2="110" y2="55" stroke="url(#textGradient)" stroke-width="3" opacity="0.3" stroke-linecap="round"/>
+    <line x1="55" y1="0" x2="55" y2="110" stroke="url(#textGradient)" stroke-width="3" opacity="0.3" stroke-linecap="round"/>
     
-    <!-- Vertical divider -->
-    <line x1="30" y1="0" x2="30" y2="60" stroke="#1e293b" stroke-width="3.5"/>
-    
-    <!-- Top-left: Tornado/Hurricane (improved swirling symbol) -->
-    <g transform="translate(15, 10)">
-      <circle cx="0" cy="0" r="7" fill="none" stroke="#6b7280" stroke-width="2.5" opacity="0.8"/>
-      <path d="M -5 -5 Q 0 0 5 -5 Q 5 5 0 0 Q -5 5 -5 -5" 
-            fill="none" 
-            stroke="#6b7280" 
-            stroke-width="2.5" 
-            opacity="0.9"/>
-      <circle cx="0" cy="0" r="3" fill="#9ca3af" opacity="0.6"/>
+    <!-- Top-left: STORM - Modern storm icon -->
+    <g transform="translate(27.5, 20)">
+      <!-- Storm cloud with modern design -->
+      <ellipse cx="0" cy="0" rx="18" ry="12" fill="#64748b" opacity="0.8"/>
+      <ellipse cx="-8" cy="-3" rx="12" ry="8" fill="#475569" opacity="0.9"/>
+      <ellipse cx="8" cy="-3" rx="12" ry="8" fill="#475569" opacity="0.9"/>
+      <!-- Lightning bolt - vibrant yellow -->
+      <path d="M -3 -12 L 2 -6 L -1 -6 L 3 8 L -2 2 L 1 2 L -3 -12" 
+            fill="#fbbf24" 
+            stroke="#f59e0b" 
+            stroke-width="1.5"
+            filter="url(#glow)"/>
+      <!-- Wind swirls -->
+      <path d="M -20 -2 Q -12 0 -4 -2" fill="none" stroke="#94a3b8" stroke-width="2.5" opacity="0.7" stroke-linecap="round"/>
+      <path d="M -20 2 Q -12 4 -4 2" fill="none" stroke="#94a3b8" stroke-width="2.5" opacity="0.7" stroke-linecap="round"/>
+      <path d="M 4 -2 Q 12 0 20 -2" fill="none" stroke="#94a3b8" stroke-width="2.5" opacity="0.7" stroke-linecap="round"/>
     </g>
     
-    <!-- Top-right: Fire (enhanced flames) -->
-    <g transform="translate(45, 10)">
-      <path d="M 8 12 L 3 3 L 8 1 L 13 3 Z" fill="#ef4444"/>
-      <path d="M 8 12 L 4 6 L 8 3 L 12 6 Z" fill="#f97316"/>
-      <path d="M 8 12 L 5 8 L 8 5 L 11 8 Z" fill="#fb923c"/>
-      <path d="M 8 12 L 6 10 L 8 7 L 10 10 Z" fill="#fbbf24"/>
-      <!-- Small flame details -->
-      <ellipse cx="6" cy="4" rx="1.5" ry="2" fill="#fbbf24" opacity="0.8"/>
-      <ellipse cx="10" cy="4" rx="1.5" ry="2" fill="#fbbf24" opacity="0.8"/>
+    <!-- Top-right: FIRE - Modern flame design -->
+    <g transform="translate(82.5, 20)">
+      <!-- Main flame with gradient effect -->
+      <path d="M 10 22 L 5 3 L 10 0 L 15 3 Z" fill="#ef4444" filter="url(#glow)"/>
+      <path d="M 10 22 L 6 10 L 10 5 L 14 10 Z" fill="#f97316" filter="url(#glow)"/>
+      <path d="M 10 22 L 7 15 L 10 10 L 13 15 Z" fill="#fb923c" filter="url(#glow)"/>
+      <path d="M 10 22 L 8 18 L 10 14 L 12 18 Z" fill="#fbbf24" filter="url(#glow)"/>
+      <!-- Side flames -->
+      <path d="M 5 22 L 2 8 L 5 5 L 8 8 Z" fill="#f97316" opacity="0.85"/>
+      <path d="M 15 22 L 12 8 L 15 5 L 18 8 Z" fill="#f97316" opacity="0.85"/>
+      <!-- Spark particles -->
+      <circle cx="3" cy="7" r="1.8" fill="#fef3c7" opacity="0.9"/>
+      <circle cx="17" cy="7" r="1.8" fill="#fef3c7" opacity="0.9"/>
+      <circle cx="6" cy="4" r="1.2" fill="#fbbf24" opacity="0.8"/>
+      <circle cx="14" cy="4" r="1.2" fill="#fbbf24" opacity="0.8"/>
     </g>
     
-    <!-- Bottom-left: Flood (improved wavy water) -->
-    <g transform="translate(15, 45)">
-      <path d="M -8 8 Q -4 4 0 8 Q 4 12 8 8" 
+    <!-- Bottom-left: FLOOD - Modern water waves -->
+    <g transform="translate(27.5, 82.5)">
+      <!-- Water waves with modern styling -->
+      <path d="M -15 15 Q -7.5 7.5 0 15 Q 7.5 22.5 15 15" 
             fill="none" 
             stroke="#3b82f6" 
-            stroke-width="3"
+            stroke-width="4.5"
             stroke-linecap="round"/>
-      <path d="M -6 12 Q -2 8 2 12 Q 6 16 10 12" 
+      <path d="M -13 22.5 Q -5.5 15 1.5 22.5 Q 8.5 30 16.5 22.5" 
             fill="none" 
             stroke="#2563eb" 
-            stroke-width="3"
+            stroke-width="4.5"
             stroke-linecap="round"/>
-      <path d="M -8 8 Q -4 4 0 8 Q 4 12 8 8 L 8 15 L -8 15 Z" 
+      <!-- Water fill -->
+      <path d="M -15 15 Q -7.5 7.5 0 15 Q 7.5 22.5 15 15 L 15 30 L -15 30 Z" 
             fill="#60a5fa" 
             opacity="0.5"/>
-      <!-- Water droplets -->
-      <circle cx="-4" cy="10" r="1.5" fill="#3b82f6" opacity="0.7"/>
-      <circle cx="4" cy="10" r="1.5" fill="#3b82f6" opacity="0.7"/>
+      <!-- Splash droplets -->
+      <circle cx="-10" cy="18" r="2.5" fill="#3b82f6" opacity="0.8"/>
+      <circle cx="10" cy="18" r="2.5" fill="#3b82f6" opacity="0.8"/>
+      <circle cx="-5" cy="15" r="2" fill="#60a5fa" opacity="0.7"/>
+      <circle cx="5" cy="15" r="2" fill="#60a5fa" opacity="0.7"/>
+      <!-- Ripple effects -->
+      <ellipse cx="-8" cy="25" rx="4" ry="2" fill="#3b82f6" opacity="0.4"/>
+      <ellipse cx="8" cy="25" rx="4" ry="2" fill="#3b82f6" opacity="0.4"/>
     </g>
     
-    <!-- Bottom-right: Damaged house (enhanced details) -->
-    <g transform="translate(45, 45)">
-      <!-- House base -->
-      <rect x="4" y="8" width="8" height="7" fill="#92400e" stroke="#78350f" stroke-width="0.8"/>
-      <!-- Door -->
-      <rect x="6.5" y="11" width="3" height="4" fill="#78350f"/>
-      <circle cx="8.5" cy="13" r="0.5" fill="#a16207"/>
-      <!-- Window -->
-      <rect x="5" y="9.5" width="2" height="2" fill="#fef3c7" stroke="#78350f" stroke-width="0.5"/>
-      <rect x="9" y="9.5" width="2" height="2" fill="#fef3c7" stroke="#78350f" stroke-width="0.5"/>
-      <!-- Broken roof with more detail -->
-      <path d="M 2 8 L 8 2 L 14 8 L 10 8 L 8 4 L 6 8 Z" fill="#a16207" stroke="#78350f" stroke-width="0.5"/>
-      <line x1="8" y1="2" x2="10" y2="8" stroke="#78350f" stroke-width="1.5"/>
-      <!-- Cracks in roof -->
-      <line x1="10" y1="4" x2="12" y2="8" stroke="#78350f" stroke-width="1"/>
-      <line x1="6" y1="4" x2="4" y2="8" stroke="#78350f" stroke-width="0.8"/>
-      <!-- Roof tiles detail -->
-      <line x1="5" y1="5" x2="11" y2="5" stroke="#92400e" stroke-width="0.5" opacity="0.6"/>
+    <!-- Bottom-right: EARTHQUAKE - Modern seismic design -->
+    <g transform="translate(82.5, 82.5)">
+      <!-- Seismic waves - concentric circles -->
+      <circle cx="0" cy="0" r="10" fill="none" stroke="#dc2626" stroke-width="3" opacity="0.7"/>
+      <circle cx="0" cy="0" r="15" fill="none" stroke="#dc2626" stroke-width="2.5" opacity="0.5"/>
+      <circle cx="0" cy="0" r="20" fill="none" stroke="#dc2626" stroke-width="2" opacity="0.4"/>
+      <!-- Ground cracks - modern jagged lines -->
+      <path d="M -22 12 L -16 18 L -10 12 L -4 18 L 2 12 L 8 18 L 14 12 L 20 18" 
+            fill="none" 
+            stroke="#92400e" 
+            stroke-width="3.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"/>
+      <path d="M -20 20 L -14 26 L -8 20 L -2 26 L 4 20 L 10 26 L 16 20 L 22 26" 
+            fill="none" 
+            stroke="#78350f" 
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"/>
+      <!-- Building icon - simplified modern design -->
+      <g transform="rotate(-8)">
+        <rect x="-5" y="3" width="10" height="12" fill="#92400e" stroke="#78350f" stroke-width="1.5" rx="1"/>
+        <path d="M -7 3 L 0 -2 L 7 3" fill="#a16207" stroke="#78350f" stroke-width="1.5"/>
+        <rect x="-3.5" y="7" width="2.5" height="2.5" fill="#fef3c7" stroke="#78350f" stroke-width="0.8" rx="0.5"/>
+        <rect x="1" y="7" width="2.5" height="2.5" fill="#fef3c7" stroke="#78350f" stroke-width="0.8" rx="0.5"/>
+        <rect x="-2" y="11" width="4" height="4" fill="#78350f" rx="0.5"/>
+      </g>
+      <!-- Seismic activity indicator -->
+      <path d="M -12 -3 L -6 -1 L 0 -3 L 6 -1 L 12 -3" 
+            fill="none" 
+            stroke="#dc2626" 
+            stroke-width="2.5" 
+            opacity="0.8"
+            stroke-linecap="round"/>
     </g>
     
-    <!-- Center: White circle with red plus (enhanced) -->
-    <circle cx="30" cy="30" r="14" fill="white" stroke="#1e293b" stroke-width="3.5"/>
-    <!-- Plus sign with rounded ends -->
-    <line x1="30" y1="18" x2="30" y2="42" stroke="#dc2626" stroke-width="4.5" stroke-linecap="round"/>
-    <line x1="18" y1="30" x2="42" y2="30" stroke="#dc2626" stroke-width="4.5" stroke-linecap="round"/>
-    <!-- Inner highlight on plus -->
-    <line x1="30" y1="20" x2="30" y2="40" stroke="#fca5a5" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
-    <line x1="20" y1="30" x2="40" y2="30" stroke="#fca5a5" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+    <!-- Center: Shield/Protection Icon - Modern design -->
+    <g transform="translate(55, 55)">
+      <!-- Shield shape -->
+      <path d="M 0 -18 L -12 -8 L -12 8 Q -12 18 0 22 Q 12 18 12 8 L 12 -8 Z" 
+            fill="white" 
+            stroke="url(#textGradient)" 
+            stroke-width="4.5"
+            filter="url(#shadow)"/>
+      <!-- Cross/Plus in center -->
+      <circle cx="0" cy="0" r="8" fill="url(#textGradient)" opacity="0.1"/>
+      <line x1="0" y1="-10" x2="0" y2="10" stroke="#dc2626" stroke-width="4" stroke-linecap="round"/>
+      <line x1="-10" y1="0" x2="10" y2="0" stroke="#dc2626" stroke-width="4" stroke-linecap="round"/>
+      <!-- Inner highlight -->
+      <line x1="0" y1="-8" x2="0" y2="8" stroke="#fca5a5" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+      <line x1="-8" y1="0" x2="8" y2="0" stroke="#fca5a5" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+    </g>
   </g>
 </svg>

@@ -106,6 +106,8 @@ const Certificate: React.FC = () => {
                 }
 
                 const apiUrl = `${API_BASE_URL}/api/certificate/${validModule}`;
+                console.log('[Certificate API] Base URL:', API_BASE_URL);
+                console.log('[Certificate API] Full URL:', apiUrl);
                 console.log('[Certificate] Making API request', { 
                     url: apiUrl,
                     module: validModule 

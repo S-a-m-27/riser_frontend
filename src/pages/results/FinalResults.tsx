@@ -144,6 +144,8 @@ const FinalResults: React.FC = () => {
 
             const module = searchParams.get('module') || 'flood';
             const url = `${API_BASE_URL}/api/results/final?module=${module}`;
+            console.log('[FinalResults API] Base URL:', API_BASE_URL);
+            console.log('[FinalResults API] Full URL:', url);
 
             const response = await fetch(url, {
                 method: 'GET',

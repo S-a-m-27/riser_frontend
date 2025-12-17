@@ -89,6 +89,8 @@ const Leaderboard: React.FC = () => {
             const sortParam = sortMap[sortBy] || 'highest_score';
 
             const url = `${API_BASE_URL}/api/leaderboard?module=${moduleParam}&sort_by=${sortParam}`;
+            console.log('[Leaderboard API] Base URL:', API_BASE_URL);
+            console.log('[Leaderboard API] Full URL:', url);
 
             const response = await fetch(url, {
                 method: 'GET',
