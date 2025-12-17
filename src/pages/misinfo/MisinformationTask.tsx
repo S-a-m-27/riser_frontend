@@ -6,8 +6,7 @@ import Button from '../../components/ui/Button';
 import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogClose } from '../../components/ui/Dialog';
 import { ROUTES } from '../../router/routeMap';
 import { cn } from '../../lib/utils';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { API_BASE_URL } from '../../config/api';
 
 // API Response Types
 interface MisinformationItem {

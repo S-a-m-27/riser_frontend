@@ -8,8 +8,7 @@ import { useAvatarStore } from '../../store/avatarStore';
 import { useConfetti } from '../../hooks/useConfetti';
 import { useSound } from '../../hooks/useSound';
 import { ROUTES } from '../../router/routeMap';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { API_BASE_URL } from '../../config/api';
 
 // Using DiceBear API for diverse, fun, cartoonish avatars
 // This service provides illustrated avatars with different styles, genders, and skin tones

@@ -7,11 +7,13 @@
 - Click **"Add New..."** → **"Project"**
 - Import `riser_frontend` from GitHub
 
-### 2. Set Environment Variable
-Go to **"Settings"** → **"Environment Variables"** and add:
+### 2. Set Environment Variable (Optional)
+The frontend is already configured to use `https://riserbackend-production.up.railway.app` by default.
+
+If you need to override it, go to **"Settings"** → **"Environment Variables"** and add:
 
 ```bash
-VITE_API_URL=https://your-backend.railway.app
+VITE_API_URL=https://riserbackend-production.up.railway.app
 ```
 
 ### 3. Deploy

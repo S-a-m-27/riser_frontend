@@ -36,13 +36,13 @@ Vercel should auto-detect your project, but verify these settings:
 1. In your Vercel project, go to **"Settings"** → **"Environment Variables"**
 2. Add the following environment variable:
 
-### Required Variable:
+### Optional Variable (Default is already set):
 
 ```bash
-VITE_API_URL=https://your-backend-url.railway.app
+VITE_API_URL=https://riserbackend-production.up.railway.app
 ```
 
-**Important**: Replace `https://your-backend-url.railway.app` with your actual Railway backend URL.
+**Note**: The frontend is already configured to use `https://riserbackend-production.up.railway.app` as the default API URL. You only need to set `VITE_API_URL` if you want to override it (e.g., for a different environment or local development).
 
 ### How to Get Your Backend URL:
 

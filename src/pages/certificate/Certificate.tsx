@@ -8,7 +8,7 @@ import { useUserStore } from '../../store/userStore';
 import { ROUTES } from '../../router/routeMap';
 import { useToastContext } from '../../contexts/ToastContext';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { API_BASE_URL } from '../../config/api';
 
 interface AchievementBadge {
     id: string;

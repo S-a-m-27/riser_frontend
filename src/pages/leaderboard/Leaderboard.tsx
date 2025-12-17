@@ -4,7 +4,7 @@ import { Trophy, Medal, ChevronDown, Loader2, AlertTriangle } from 'lucide-react
 import { Card, CardContent } from '../../components/ui/Card';
 import { cn } from '../../lib/utils';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { API_BASE_URL } from '../../config/api';
 
 interface LeaderboardUser {
     id: string;

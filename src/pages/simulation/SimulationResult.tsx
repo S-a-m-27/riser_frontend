@@ -25,7 +25,7 @@ import { playAchievement, playFail, playLevelUp } from '../../utils/sound';
 import { useMotionValue, useTransform, animate } from 'framer-motion';
 import { useConfetti } from '../../hooks/useConfetti';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { API_BASE_URL } from '../../config/api';
 
 // API Types - Updated to match new backend format
 interface SimulationScores {

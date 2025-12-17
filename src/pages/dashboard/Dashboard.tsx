@@ -8,8 +8,7 @@ import { useAvatarStore } from '../../store/avatarStore';
 import { useUserStore } from '../../store/userStore';
 import { ROUTES } from '../../router/routeMap';
 import { cn } from '../../lib/utils';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { API_BASE_URL } from '../../config/api';
 
 // Helper function to generate avatar URL from avatar ID
 const getAvatarUrl = (avatarId: string | null): string => {
