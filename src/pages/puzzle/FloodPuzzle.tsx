@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { 
     Check, ArrowUp, ArrowDown, ArrowRight, Loader2, AlertTriangle, Trophy, RotateCcw,
     Phone, Home, Shield, AlertCircle, Heart, Droplets, Radio, MapPin, Package,
-    Users, Clock, CheckCircle, FileText, Battery, Flashlight
+    Users, Clock, CheckCircle, FileText
 } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import { Card, CardContent } from '../../components/ui/Card';

@@ -127,7 +127,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onMobileClose, onMobile
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    if (hideOnRoutes.includes(location.pathname)) {
+    if (hideOnRoutes.includes(location.pathname as any)) {
         return null;
     }
 
@@ -254,7 +254,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onMobileClose, onMobile
                                 transition={{ delay: index * 0.05, duration: 0.3 }}
                             >
                                 <SidebarItem
-                                    icon={Icon}
+                                    icon={Icon as any}
                                     label={item.label}
                                     isActive={isActive(item)}
                                     onClick={() => handleNavClick(item.route)}

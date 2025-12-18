@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Lock, Trophy, Droplets, ThermometerSun, Zap, Loader2, Users, UserPlus, X, CheckCircle } from 'lucide-react';
+import { Lock, Trophy, Droplets, ThermometerSun, Zap, Loader2, UserPlus, X, CheckCircle } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import Tooltip from '../../components/ui/Tooltip';
 import { useAvatarStore } from '../../store/avatarStore';
@@ -200,7 +200,7 @@ const Dashboard: React.FC = () => {
 
     // Initial fetch and polling for invitations
     useEffect(() => {
-        let pollInterval: NodeJS.Timeout | null = null;
+        let pollInterval: ReturnType<typeof setInterval> | null = null;
 
         // Initial fetch with loading state
         setIsLoadingInvitations(true);

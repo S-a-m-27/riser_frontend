@@ -24,7 +24,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children, className }) => {
         ROUTES.AUTH.SELECT_AVATAR,
     ];
 
-    const hasSidebar = !hideSidebarRoutes.includes(location.pathname);
+    const hasSidebar = !hideSidebarRoutes.includes(location.pathname as any);
 
     return (
         <div

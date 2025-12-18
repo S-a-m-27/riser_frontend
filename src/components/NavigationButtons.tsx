@@ -44,7 +44,7 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
         ROUTES.AUTH.SELECT_AVATAR,
     ];
 
-    if (hideOnRoutes.includes(location.pathname)) {
+    if (hideOnRoutes.includes(location.pathname as any)) {
         return null;
     }
 
@@ -53,7 +53,7 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
     // Position buttons at top-left, accounting for sidebar and header
     // Sidebar is 260px wide, so position buttons to the right of it when visible
     // Header is sticky at top-0, so position buttons below it (top-16 = 4rem = 64px)
-    const hasSidebar = !hideOnRoutes.includes(location.pathname);
+    const hasSidebar = !hideOnRoutes.includes(location.pathname as any);
     const leftPosition = hasSidebar ? "left-[276px]" : "left-4"; // 260px sidebar + 16px gap
     const topPosition = "top-20"; // Below sticky header (64px + some padding)
 

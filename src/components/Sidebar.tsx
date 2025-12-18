@@ -4,15 +4,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Home,
     Settings,
-    User,
     Shield,
     Trophy,
     BookOpen,
     LogOut,
     Menu,
-    X,
     ChevronLeft,
-    ChevronRight,
 } from 'lucide-react';
 import { ROUTES } from '../router/routeMap';
 import { cn } from '../lib/utils';
@@ -96,7 +93,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen: controlledIsOpen, onToggle })
         return () => window.removeEventListener('resize', checkMobile);
     }, [setIsOpen]);
 
-    if (hideOnRoutes.includes(location.pathname)) {
+    if (hideOnRoutes.includes(location.pathname as any)) {
         return null;
     }
 

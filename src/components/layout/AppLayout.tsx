@@ -23,7 +23,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         ROUTES.SIMULATION.LIVE,
     ];
 
-    const showSidebar = !hideOnRoutes.includes(location.pathname);
+    const showSidebar = !hideOnRoutes.includes(location.pathname as any);
 
     useEffect(() => {
         const checkMobile = () => {
