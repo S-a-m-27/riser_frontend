@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Lock, Trophy, Droplets, ThermometerSun, Zap, Loader2 } from 'lucide-react';
+import { Lock, Trophy, Droplets, ThermometerSun, Zap, Loader2, Users, UserPlus, X, CheckCircle } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import Tooltip from '../../components/ui/Tooltip';
 import { useAvatarStore } from '../../store/avatarStore';
@@ -9,6 +9,7 @@ import { useUserStore } from '../../store/userStore';
 import { ROUTES } from '../../router/routeMap';
 import { cn } from '../../lib/utils';
 import { API_BASE_URL } from '../../config/api';
+import { isSpeechSpeaking } from '../../utils/repeatTTS';
 
 // Helper function to generate avatar URL from avatar ID
 const getAvatarUrl = (avatarId: string | null): string => {
@@ -73,6 +74,20 @@ const Dashboard: React.FC = () => {
     const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    
+    // State for invitations
+    interface Invitation {
+        invitation_id: string;
+        session_id: string;
+        scenario_type: string;
+        inviter_name: string;
+        inviter_email: string;
+        inviter_avatar: string | null;
+        created_at: string;
+    }
+    const [invitations, setInvitations] = useState<Invitation[]>([]);
+    const [isLoadingInvitations, setIsLoadingInvitations] = useState(false);
+    const [respondingInvitation, setRespondingInvitation] = useState<string | null>(null);
 
     // Fetch dashboard data on component mount
     useEffect(() => {
@@ -131,6 +146,161 @@ const Dashboard: React.FC = () => {
 
         fetchDashboardData();
     }, [navigate, setUserName]);
+
+    // Fetch invitations function
+    const fetchInvitations = React.useCallback(async () => {
+        // Don't fetch if speech is currently speaking
+        if (isSpeechSpeaking()) {
+            console.log('[Dashboard] Invitation fetch skipped - speech is currently speaking');
+            return;
+        }
+
+        const token = localStorage.getItem('access_token');
+        if (!token) return;
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/simulation/invitations/my`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('[Dashboard] Invitations fetched:', data);
+                console.log('[Dashboard] Number of invitations:', data.invitations?.length || 0);
+                
+                // Only update if invitations have changed to avoid unnecessary re-renders
+                setInvitations(prevInvitations => {
+                    const newInvitations = data.invitations || [];
+                    // Check if invitations have actually changed
+                    const hasChanged = 
+                        prevInvitations.length !== newInvitations.length ||
+                        prevInvitations.some((prev, index) => 
+                            !newInvitations[index] || 
+                            prev.invitation_id !== newInvitations[index].invitation_id
+                        );
+                    
+                    if (hasChanged) {
+                        console.log('[Dashboard] Invitations updated:', newInvitations.length);
+                        return newInvitations;
+                    }
+                    return prevInvitations;
+                });
+            } else {
+                const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
+                console.error('[Dashboard] Failed to fetch invitations:', response.status, errorData);
+            }
+        } catch (err) {
+            console.error('Error fetching invitations:', err);
+        }
+    }, []);
+
+    // Initial fetch and polling for invitations
+    useEffect(() => {
+        let pollInterval: NodeJS.Timeout | null = null;
+
+        // Initial fetch with loading state
+        setIsLoadingInvitations(true);
+        fetchInvitations().finally(() => {
+            setIsLoadingInvitations(false);
+        });
+
+        // Function to start polling
+        const startPolling = () => {
+            // Clear any existing interval
+            if (pollInterval) {
+                clearInterval(pollInterval);
+            }
+            
+            // Set up polling interval to refresh invitations every 5 seconds
+            pollInterval = setInterval(() => {
+                // Only poll if page is visible and speech is not currently speaking
+                if (!document.hidden && !isSpeechSpeaking()) {
+                    console.log('[Dashboard] Polling for new invitations...');
+                    fetchInvitations();
+                } else if (isSpeechSpeaking()) {
+                    console.log('[Dashboard] Polling skipped - speech is currently speaking');
+                }
+            }, 5000); // Poll every 5 seconds
+        };
+
+        // Start polling
+        startPolling();
+
+        // Handle page visibility changes (pause polling when tab is hidden)
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                // Page is hidden, stop polling
+                if (pollInterval) {
+                    clearInterval(pollInterval);
+                    pollInterval = null;
+                    console.log('[Dashboard] Polling paused (page hidden)');
+                }
+            } else {
+                // Page is visible, resume polling
+                console.log('[Dashboard] Polling resumed (page visible)');
+                // Immediately fetch when page becomes visible (only if speech is not speaking)
+                if (!isSpeechSpeaking()) {
+                    fetchInvitations();
+                }
+                startPolling();
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        // Cleanup interval and event listener on unmount
+        return () => {
+            if (pollInterval) {
+                clearInterval(pollInterval);
+            }
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, [fetchInvitations]);
+
+    const handleRespondToInvitation = async (invitationId: string, action: 'accept' | 'decline') => {
+        const token = localStorage.getItem('access_token');
+        if (!token) return;
+
+        setRespondingInvitation(invitationId);
+        try {
+            const response = await fetch(`${API_BASE_URL}/simulation/invitations/respond`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    invitation_id: invitationId,
+                    action: action,
+                }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                
+                // Remove invitation from list (optimistic UI)
+                setInvitations(prev => prev.filter(inv => inv.invitation_id !== invitationId));
+                
+                if (action === 'accept' && data.session_id) {
+                    // Navigate to simulation live screen
+                    navigate(`${ROUTES.SIMULATION.LIVE}?session_id=${data.session_id}`);
+                }
+            } else {
+                const errorData = await response.json();
+                console.error('Error responding to invitation:', errorData);
+                setError(errorData.detail || 'Failed to respond to invitation');
+            }
+        } catch (err) {
+            console.error('Error responding to invitation:', err);
+            setError('Failed to respond to invitation');
+        } finally {
+            setRespondingInvitation(null);
+        }
+    };
 
     // Use API data or fallback to store values
     const displayName = dashboardData?.user?.name || userName || 'User';
@@ -223,6 +393,18 @@ const Dashboard: React.FC = () => {
                     animate="visible"
                     className="space-y-8 md:space-y-12"
                 >
+                    {/* RISER Logo */}
+                    <motion.div
+                        variants={itemVariants}
+                        className="flex justify-center mb-4"
+                    >
+                        <img 
+                            src="/images/riserLogo.jpg" 
+                            alt="RISER Logo" 
+                            className="h-16 md:h-20 lg:h-24 w-auto"
+                        />
+                    </motion.div>
+
                     {/* Welcome Section */}
                     <motion.div variants={itemVariants} className="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8">
                         {/* Avatar with floating animation */}
@@ -538,6 +720,90 @@ const Dashboard: React.FC = () => {
                             })}
                         </div>
                     </motion.div>
+
+                    {/* Game Invitations Section */}
+                    {isLoadingInvitations ? (
+                        <motion.div variants={itemVariants} className="space-y-4">
+                            <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                <span>Loading invitations...</span>
+                            </div>
+                        </motion.div>
+                    ) : invitations.length > 0 ? (
+                        <motion.div variants={itemVariants} className="space-y-4">
+                            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                                <UserPlus className="w-7 h-7 text-purple-500" />
+                                Game Invitations
+                            </h2>
+                            <p className="text-slate-600 dark:text-slate-400">
+                                Invite your friend to help you!
+                            </p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {invitations.map((invitation, index) => (
+                                    <motion.div
+                                        key={invitation.invitation_id}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: index * 0.1 }}
+                                        className="bg-white dark:bg-slate-800 rounded-xl p-6 border-2 border-purple-200 dark:border-purple-700 shadow-lg hover:shadow-xl transition-all"
+                                    >
+                                        <div className="flex items-start gap-4">
+                                            {/* Avatar */}
+                                            <div className="flex-shrink-0">
+                                                <img
+                                                    src={getAvatarUrl(invitation.inviter_avatar)}
+                                                    alt={invitation.inviter_name || invitation.inviter_email}
+                                                    className="w-12 h-12 rounded-full border-2 border-purple-200 dark:border-purple-700 object-cover shadow-md"
+                                                />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-1">
+                                                    {invitation.scenario_type.charAt(0).toUpperCase() + invitation.scenario_type.slice(1)} Simulation
+                                                </h3>
+                                                <div className="mb-3 space-y-1">
+                                                    <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
+                                                        {invitation.inviter_name || invitation.inviter_email.split('@')[0]} invited you to join!
+                                                    </p>
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                        {invitation.inviter_email}
+                                                    </p>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <Button
+                                                        size="sm"
+                                                        onClick={() => handleRespondToInvitation(invitation.invitation_id, 'accept')}
+                                                        disabled={respondingInvitation === invitation.invitation_id}
+                                                        className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white"
+                                                    >
+                                                        {respondingInvitation === invitation.invitation_id ? (
+                                                            <>
+                                                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                                                Joining...
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <CheckCircle className="w-4 h-4 mr-2" />
+                                                                Join Simulation
+                                                            </>
+                                                        )}
+                                                    </Button>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline"
+                                                        onClick={() => handleRespondToInvitation(invitation.invitation_id, 'decline')}
+                                                        disabled={respondingInvitation === invitation.invitation_id}
+                                                        className="flex-shrink-0"
+                                                    >
+                                                        <X className="w-4 h-4" />
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </motion.div>
+                    ) : null}
 
                     {/* Progress Section */}
                     <motion.div

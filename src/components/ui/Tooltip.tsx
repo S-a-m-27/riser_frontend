@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../lib/utils';
 
 export interface TooltipProps {
-    content: string;
+    content: string | React.ReactNode;
     children: React.ReactNode;
     side?: 'top' | 'bottom' | 'left' | 'right';
     className?: string;
@@ -46,7 +46,8 @@ const Tooltip: React.FC<TooltipProps> = ({
                         exit={{ opacity: 0, scale: 0.8 }}
                         transition={{ duration: 0.2 }}
                         className={cn(
-                            'absolute z-50 px-3 py-1.5 text-sm text-white bg-slate-900 dark:bg-slate-700 rounded-md shadow-lg whitespace-nowrap',
+                            'absolute z-50 px-3 py-1.5 text-sm text-white bg-slate-900 dark:bg-slate-700 rounded-md shadow-lg',
+                            typeof content === 'string' ? 'whitespace-nowrap' : 'whitespace-normal max-w-xs',
                             sideClasses[side],
                             className
                         )}

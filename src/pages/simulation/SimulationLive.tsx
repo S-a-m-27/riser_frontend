@@ -14,13 +14,18 @@ import {
     AlertCircle,
     Loader2,
     AlertTriangle,
-    Copy,
-    Share2,
     Info,
+    UserPlus,
+    Search,
+    X,
+    HelpCircle,
+    Crown,
+    Shield,
 } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import { Card, CardContent } from '../../components/ui/Card';
 import { Dialog, DialogHeader, DialogTitle, DialogContent } from '../../components/ui/Dialog';
+import Tooltip from '../../components/ui/Tooltip';
 import { ROUTES } from '../../router/routeMap';
 import { cn } from '../../lib/utils';
 import { getSceneImage } from '../../utils/sceneImages';
@@ -66,14 +71,14 @@ const SimulationLive: React.FC = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Simulation state
-    const [timeLeft, setTimeLeft] = useState(1200); // 20 minutes in seconds
+    const [timeLeft, setTimeLeft] = useState(600); // 10 minutes in seconds
     const [stress, setStress] = useState(20);
     const [morale, setMorale] = useState(80);
     const [selectedDecision, setSelectedDecision] = useState<string | null>(null);
     const [showPauseModal, setShowPauseModal] = useState(false);
     const [showExitModal, setShowExitModal] = useState(false);
     const [showTeamVote, setShowTeamVote] = useState(false);
-    const [toast, setToast] = useState<{ message: string; type: 'success' | 'warning' | 'info' } | null>(null);
+    const [toast, setToast] = useState<{ message: string; type: 'success' | 'warning' | 'info' | 'error' } | null>(null);
     const [isPaused, setIsPaused] = useState(false);
     const [simulationStatus, setSimulationStatus] = useState<'ongoing' | 'failed' | 'success'>('ongoing');
     const [imageError, setImageError] = useState(false);
@@ -95,7 +100,36 @@ const SimulationLive: React.FC = () => {
     } | null>(null);
     const [hasVoted, setHasVoted] = useState(false);
     const [isSubmittingVote, setIsSubmittingVote] = useState(false);
-    const [sessionIdCopied, setSessionIdCopied] = useState(false);
+
+    // Invitation state
+    const [showInviteModal, setShowInviteModal] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState<Array<{ id: string; name: string; email: string; avatar: string | null }>>([]);
+    const [isSearching, setIsSearching] = useState(false);
+    const [invitingUsers, setInvitingUsers] = useState<Set<string>>(new Set());
+    const [invitedUsers, setInvitedUsers] = useState<Set<string>>(new Set());
+
+    // Helper function to generate avatar URL from avatar ID
+    const getAvatarUrl = (avatarId: string | null): string => {
+        if (!avatarId) {
+            return 'https://api.dicebear.com/7.x/avataaars/svg?seed=default&backgroundColor=b6e3f4&radius=20';
+        }
+
+        const styles = [
+            'adventurer', 'avataaars', 'big-smile', 'bottts', 'fun-emoji', 'lorelei',
+            'micah', 'miniavs', 'open-peeps', 'personas', 'pixel-art', 'shapes'
+        ];
+        const seeds = [
+            'alex', 'blake', 'casey', 'dana', 'eli', 'finley',
+            'gray', 'harper', 'ivy', 'jordan', 'kai', 'logan'
+        ];
+
+        const index = parseInt(avatarId.split('-')[1]) - 1;
+        const style = styles[index] || 'avataaars';
+        const seed = seeds[index] || 'default';
+
+        return `https://api.dicebear.com/7.x/${style}/svg?seed=${seed}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf&radius=20`;
+    };
 
     // Memoize image path to prevent repeated calculations and logs
     // MUST be called before any conditional returns (Rules of Hooks)
@@ -176,6 +210,8 @@ const SimulationLive: React.FC = () => {
             // Reset refresh flag when scene data is successfully loaded
             isRefreshingScene.current = false;
             console.log('🔄 Image state reset: loading=true, error=false');
+            // NOTE: Timer comes from backend. Backend should send 600 seconds (10 minutes) instead of 1200 (20 minutes)
+            // Frontend initial state is already set to 600 seconds
             setTimeLeft(data.time_remaining);
             setStress(data.stress_level);
             setMorale(data.morale);
@@ -748,6 +784,94 @@ const SimulationLive: React.FC = () => {
         navigate(ROUTES.DASHBOARD);
     };
 
+    const handleSearchUsers = async (query: string) => {
+        if (!sessionId || !isMultiplayer) return;
+
+        setIsSearching(true);
+        try {
+            const token = localStorage.getItem('access_token');
+            if (!token) return;
+
+            const response = await fetch(`${API_BASE_URL}/simulation/invitations/search-users?q=${encodeURIComponent(query)}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                // Filter out current user and existing participants
+                const currentUserId = localStorage.getItem('user_id');
+                const filtered = (data.users || []).filter((user: any) => {
+                    return user.id !== currentUserId && 
+                           !participants.some(p => p.user_id === user.id);
+                });
+                setSearchResults(filtered);
+            } else {
+                setSearchResults([]);
+            }
+        } catch (err) {
+            console.error('Error searching users:', err);
+            setSearchResults([]);
+        } finally {
+            setIsSearching(false);
+        }
+    };
+
+    const handleInviteUser = async (userId: string) => {
+        if (!sessionId) return;
+
+        setInvitingUsers(prev => new Set(prev).add(userId));
+        try {
+            const token = localStorage.getItem('access_token');
+            if (!token) return;
+
+            const response = await fetch(`${API_BASE_URL}/simulation/invitations/send`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    session_id: sessionId,
+                    invitee_id: userId,
+                }),
+            });
+
+            if (response.ok) {
+                setInvitedUsers(prev => new Set(prev).add(userId));
+                // Show success toast
+                setToast({
+                    type: 'success',
+                    message: 'Invitation sent successfully!',
+                });
+                setTimeout(() => setToast(null), 3000);
+            } else {
+                const errorData = await response.json();
+                setToast({
+                    type: 'error',
+                    message: errorData.detail || 'Failed to send invitation',
+                });
+                setTimeout(() => setToast(null), 5000);
+            }
+        } catch (err) {
+            console.error('Error sending invitation:', err);
+            setToast({
+                type: 'error',
+                message: 'Failed to send invitation',
+            });
+            setTimeout(() => setToast(null), 5000);
+        } finally {
+            setInvitingUsers(prev => {
+                const next = new Set(prev);
+                next.delete(userId);
+                return next;
+            });
+        }
+    };
+
     // Loading state
     if (isLoading) {
         return (
@@ -1013,59 +1137,61 @@ const SimulationLive: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Session ID Panel (Only for multiplayer) */}
-                    {sessionId && isMultiplayer && (
-                        <div className="bg-white/10 rounded-lg p-3">
-                            <div className="flex items-center gap-2 mb-2">
-                                <Share2 className="w-4 h-4 text-blue-400" />
-                                <span className="text-sm font-semibold text-white">Session ID</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <code className="flex-1 text-xs bg-black/20 px-2 py-1.5 rounded text-white/90 font-mono break-all">
-                                    {sessionId}
-                                </code>
-                                <button
-                                    onClick={async () => {
-                                        try {
-                                            await navigator.clipboard.writeText(sessionId);
-                                            setSessionIdCopied(true);
-                                            setTimeout(() => setSessionIdCopied(false), 2000);
-                                        } catch (err) {
-                                            console.error('Failed to copy:', err);
-                                        }
-                                    }}
-                                    className="p-1.5 hover:bg-white/10 rounded transition-colors"
-                                    title="Copy Session ID"
-                                >
-                                    {sessionIdCopied ? (
-                                        <CheckCircle className="w-4 h-4 text-green-400" />
-                                    ) : (
-                                        <Copy className="w-4 h-4 text-white/70 hover:text-white" />
-                                    )}
-                                </button>
-                            </div>
-                            <p className="text-xs text-white/60 mt-2">
-                                Share this ID with others to join
-                            </p>
-                        </div>
-                    )}
 
                     {/* Multiplayer Participants Panel */}
                     {isMultiplayer && (
-                        <div className="bg-white/10 rounded-lg overflow-hidden">
+                        <div className="bg-gradient-to-br from-white/15 to-white/5 rounded-xl overflow-hidden border border-white/20 shadow-lg">
                             <button
                                 onClick={() => setShowTeamVote(!showTeamVote)}
-                                className="w-full flex items-center justify-between p-3 hover:bg-white/10 transition-colors"
+                                className="w-full flex items-center justify-between p-4 hover:bg-white/10 transition-all duration-200"
                             >
-                                <span className="text-sm font-semibold text-white flex items-center gap-2">
-                                    <Users className="w-4 h-4" />
-                                    Team ({participants.length})
-                                </span>
-                                {showTeamVote ? (
-                                    <ChevronUp className="w-4 h-4 text-white" />
-                                ) : (
-                                    <ChevronDown className="w-4 h-4 text-white" />
-                                )}
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500/30 to-pink-500/30 rounded-lg flex items-center justify-center border border-white/20">
+                                        <Users className="w-5 h-5 text-white" />
+                                    </div>
+                                    <div className="text-left">
+                                        <div className="text-base font-bold text-white flex items-center gap-2">
+                                            Your Team
+                                            <span className="text-xs font-normal bg-white/20 px-2 py-0.5 rounded-full">
+                                                {participants.length}
+                                            </span>
+                                        </div>
+                                        <div className="text-xs text-white/70">
+                                            {participants.length === 1 ? '1 member' : `${participants.length} members`}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Tooltip
+                                        content={
+                                            <div className="space-y-2 text-sm">
+                                                <p className="font-semibold text-white mb-2">How to Invite Friends:</p>
+                                                <ol className="list-decimal list-inside space-y-1 text-white/90">
+                                                    <li>Click the "Invite Teammate" button below</li>
+                                                    <li>Search for your friend by typing their name or email</li>
+                                                    <li>Click "Invite" next to their name</li>
+                                                    <li>Your friend will receive the invitation on their Dashboard</li>
+                                                    <li>Once they accept, they'll join your simulation!</li>
+                                                </ol>
+                                            </div>
+                                        }
+                                        side="left"
+                                    >
+                                        <button
+                                            className="relative group/help w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95"
+                                            aria-label="How to invite friends"
+                                        >
+                                            <HelpCircle className="w-4 h-4 text-white/80 group-hover/help:text-white transition-colors" />
+                                            {/* Subtle glow effect */}
+                                            <div className="absolute inset-0 rounded-full bg-white/0 group-hover/help:bg-white/10 blur-sm transition-all duration-200" />
+                                        </button>
+                                    </Tooltip>
+                                    {showTeamVote ? (
+                                        <ChevronUp className="w-5 h-5 text-white" />
+                                    ) : (
+                                        <ChevronDown className="w-5 h-5 text-white" />
+                                    )}
+                                </div>
                             </button>
                             <AnimatePresence>
                                 {showTeamVote && (
@@ -1073,21 +1199,89 @@ const SimulationLive: React.FC = () => {
                                         initial={{ height: 0, opacity: 0 }}
                                         animate={{ height: 'auto', opacity: 1 }}
                                         exit={{ height: 0, opacity: 0 }}
-                                        className="p-3 border-t border-white/20 space-y-2"
+                                        transition={{ duration: 0.2 }}
+                                        className="border-t border-white/20 bg-white/5"
                                     >
-                                        {participants.map((p) => (
-                                            <div key={p.user_id} className="flex items-center justify-between text-sm">
-                                                <span className="text-white/90">{p.email}</span>
-                                                <span className={cn(
-                                                    "px-2 py-0.5 rounded text-xs",
-                                                    p.role === 'leader' 
-                                                        ? "bg-yellow-500/20 text-yellow-300" 
-                                                        : "bg-blue-500/20 text-blue-300"
-                                                )}>
-                                                    {p.role}
-                                                </span>
+                                        <div className="p-4 space-y-3">
+                                            {/* Participants List */}
+                                            <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar-light">
+                                                {participants.map((p, index) => {
+                                                    const isLeader = p.role === 'leader';
+                                                    return (
+                                                        <motion.div
+                                                            key={p.user_id}
+                                                            initial={{ opacity: 0, x: -10 }}
+                                                            animate={{ opacity: 1, x: 0 }}
+                                                            transition={{ delay: index * 0.05 }}
+                                                            className="flex items-center gap-3 p-2.5 rounded-lg bg-white/10 hover:bg-white/15 transition-colors"
+                                                        >
+                                                            <div className={cn(
+                                                                "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0",
+                                                                isLeader
+                                                                    ? "bg-gradient-to-br from-yellow-400 to-orange-500"
+                                                                    : "bg-gradient-to-br from-blue-400 to-cyan-500"
+                                                            )}>
+                                                                {isLeader ? (
+                                                                    <Crown className="w-4 h-4 text-white" />
+                                                                ) : (
+                                                                    <Shield className="w-4 h-4 text-white" />
+                                                                )}
+                                                            </div>
+                                                            <div className="flex-1 min-w-0">
+                                                                <div className="text-sm font-semibold text-white truncate">
+                                                                    {p.email.split('@')[0]}
+                                                                </div>
+                                                                <div className="text-xs text-white/60 truncate">
+                                                                    {p.email}
+                                                                </div>
+                                                            </div>
+                                                            <span className={cn(
+                                                                "px-2.5 py-1 rounded-md text-xs font-medium flex items-center gap-1.5 flex-shrink-0",
+                                                                isLeader
+                                                                    ? "bg-yellow-500/30 text-yellow-200 border border-yellow-400/30"
+                                                                    : "bg-blue-500/30 text-blue-200 border border-blue-400/30"
+                                                            )}>
+                                                                {isLeader ? (
+                                                                    <>
+                                                                        <Crown className="w-3 h-3" />
+                                                                        Leader
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        <Shield className="w-3 h-3" />
+                                                                        Member
+                                                                    </>
+                                                                )}
+                                                            </span>
+                                                        </motion.div>
+                                                    );
+                                                })}
                                             </div>
-                                        ))}
+
+                                            {/* Invite Button */}
+                                            <motion.button
+                                                whileHover={{ scale: 1.02, y: -1 }}
+                                                whileTap={{ scale: 0.98 }}
+                                                onClick={() => setShowInviteModal(true)}
+                                                className="w-full mt-4 px-4 py-3 bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 hover:from-purple-600 hover:via-pink-600 hover:to-purple-600 text-white rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-all shadow-lg hover:shadow-xl relative overflow-hidden group"
+                                            >
+                                                {/* Shine effect */}
+                                                <motion.div
+                                                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                                                    animate={{
+                                                        x: ['-100%', '100%'],
+                                                    }}
+                                                    transition={{
+                                                        duration: 2,
+                                                        repeat: Infinity,
+                                                        repeatDelay: 1,
+                                                        ease: 'linear',
+                                                    }}
+                                                />
+                                                <UserPlus className="w-4 h-4 relative z-10" />
+                                                <span className="relative z-10">Invite Teammate</span>
+                                            </motion.button>
+                                        </div>
                                     </motion.div>
                                 )}
                             </AnimatePresence>
@@ -1322,6 +1516,8 @@ const SimulationLive: React.FC = () => {
                                     ? 'bg-green-50 dark:bg-green-900/20 border-green-500'
                                     : toast.type === 'info'
                                     ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500'
+                                    : toast.type === 'error'
+                                    ? 'bg-red-50 dark:bg-red-900/20 border-red-500'
                                     : 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-500'
                             )}
                         >
@@ -1330,6 +1526,8 @@ const SimulationLive: React.FC = () => {
                                     <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
                                 ) : toast.type === 'info' ? (
                                     <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                                ) : toast.type === 'error' ? (
+                                    <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0" />
                                 ) : (
                                     <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0" />
                                 )}
@@ -1340,6 +1538,8 @@ const SimulationLive: React.FC = () => {
                                             ? 'text-green-800 dark:text-green-200'
                                             : toast.type === 'info'
                                             ? 'text-blue-800 dark:text-blue-200'
+                                            : toast.type === 'error'
+                                            ? 'text-red-800 dark:text-red-200'
                                             : 'text-yellow-800 dark:text-yellow-200'
                                     )}
                                 >
@@ -1387,6 +1587,138 @@ const SimulationLive: React.FC = () => {
                             </Button>
                             <Button onClick={confirmExit} className="bg-red-600 hover:bg-red-700">
                                 Exit
+                            </Button>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Invite Teammate Modal */}
+            <Dialog open={showInviteModal} onOpenChange={setShowInviteModal}>
+                <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2">
+                        <UserPlus className="w-5 h-5 text-purple-500" />
+                        Invite your friend to help you!
+                    </DialogTitle>
+                </DialogHeader>
+                <DialogContent className="max-w-md">
+                    <div className="space-y-4">
+                        {/* Search Input */}
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+                            <input
+                                type="text"
+                                placeholder="Search by email or name..."
+                                value={searchQuery}
+                                onChange={(e) => {
+                                    setSearchQuery(e.target.value);
+                                    if (e.target.value.length >= 2) {
+                                        handleSearchUsers(e.target.value);
+                                    } else {
+                                        setSearchResults([]);
+                                    }
+                                }}
+                                className="w-full pl-10 pr-4 py-2 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                            />
+                        </div>
+
+                        {/* Search Results */}
+                        {isSearching && (
+                            <div className="flex items-center justify-center py-4">
+                                <Loader2 className="w-5 h-5 animate-spin text-purple-500" />
+                            </div>
+                        )}
+
+                        {!isSearching && searchResults.length > 0 && (
+                            <div className="space-y-2 max-h-64 overflow-y-auto">
+                                {searchResults.map((user) => {
+                                    const isParticipant = participants.some(p => p.user_id === user.id);
+                                    const isInvited = invitedUsers.has(user.id);
+                                    const isInviting = invitingUsers.has(user.id);
+                                    const isDisabled = isParticipant || isInvited || isInviting;
+
+                                    return (
+                                        <motion.div
+                                            key={user.id}
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600"
+                                        >
+                                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                                                {/* Avatar */}
+                                                <div className="flex-shrink-0">
+                                                    <img
+                                                        src={getAvatarUrl(user.avatar)}
+                                                        alt={user.name || user.email}
+                                                        className="w-10 h-10 rounded-full border-2 border-slate-200 dark:border-slate-600 object-cover shadow-sm"
+                                                    />
+                                                </div>
+                                                {/* User Info */}
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
+                                                        {user.name || user.email.split('@')[0]}
+                                                    </p>
+                                                    {user.name && (
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                                                            {user.email}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <Button
+                                                size="sm"
+                                                onClick={() => handleInviteUser(user.id)}
+                                                disabled={isDisabled}
+                                                className={cn(
+                                                    "ml-3 flex-shrink-0",
+                                                    isInvited && "bg-green-500 hover:bg-green-600",
+                                                    isParticipant && "bg-slate-400 cursor-not-allowed"
+                                                )}
+                                            >
+                                                {isInviting ? (
+                                                    <>
+                                                        <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                                                        Inviting...
+                                                    </>
+                                                ) : isInvited ? (
+                                                    <>
+                                                        <CheckCircle className="w-3 h-3 mr-1" />
+                                                        Invited
+                                                    </>
+                                                ) : isParticipant ? (
+                                                    'Joined'
+                                                ) : (
+                                                    <>
+                                                        <UserPlus className="w-3 h-3 mr-1" />
+                                                        Invite
+                                                    </>
+                                                )}
+                                            </Button>
+                                        </motion.div>
+                                    );
+                                })}
+                            </div>
+                        )}
+
+                        {!isSearching && searchQuery.length >= 2 && searchResults.length === 0 && (
+                            <p className="text-center text-slate-500 dark:text-slate-400 py-4">
+                                No users found. Try a different search.
+                            </p>
+                        )}
+
+                        {searchQuery.length < 2 && (
+                            <p className="text-center text-slate-500 dark:text-slate-400 py-4">
+                                Type at least 2 characters to search for users.
+                            </p>
+                        )}
+
+                        <div className="flex justify-end">
+                            <Button variant="outline" onClick={() => {
+                                setShowInviteModal(false);
+                                setSearchQuery('');
+                                setSearchResults([]);
+                            }}>
+                                Close
                             </Button>
                         </div>
                     </div>

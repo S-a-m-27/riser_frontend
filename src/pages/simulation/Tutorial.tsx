@@ -75,10 +75,10 @@ const tutorialSections: TutorialSection[] = [
     {
         id: 'timer',
         title: 'Timer',
-        description: 'You have 20 minutes to complete the simulation.',
+        description: 'You have 10 minutes to complete the simulation.',
         icon: Clock,
         details: [
-            'The simulation runs for 20 minutes',
+            'The simulation runs for 10 minutes',
             'Time remaining is shown at the top',
             'Some decisions are time-sensitive',
             'Balance speed with careful consideration',

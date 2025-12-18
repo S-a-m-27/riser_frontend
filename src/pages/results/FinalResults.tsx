@@ -19,6 +19,7 @@ import { ROUTES } from '../../router/routeMap';
 import { cn } from '../../lib/utils';
 
 import { API_BASE_URL } from '../../config/api';
+import { playRepeatedTTS, isTTSSupported, isSpeechSpeaking } from '../../utils/repeatTTS';
 
 // API Types
 interface ScoreBreakdown {
@@ -167,6 +168,20 @@ const FinalResults: React.FC = () => {
 
             const data: FinalResultsData = await response.json();
             setResultData(data);
+            
+            // Auto-play AI summary with repetition when it becomes available
+            if (data.aiSummary?.insights && isTTSSupported() && !isSpeechSpeaking()) {
+                const summaryText = data.aiSummary.insights.join('. ');
+                // Small delay to ensure UI is ready
+                setTimeout(() => {
+                    // Double-check speech isn't playing before starting
+                    if (!isSpeechSpeaking()) {
+                        playRepeatedTTS(summaryText, 2, 1200).catch((err) => {
+                            console.warn('Failed to play repeated TTS:', err);
+                        });
+                    }
+                }, 1000);
+            }
         } catch (err) {
             console.error('Error fetching final results:', err);
             setError((err as Error).message || 'Failed to load final results');
@@ -469,9 +484,31 @@ const FinalResults: React.FC = () => {
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                <p className="text-slate-600 dark:text-slate-400">
-                                    Based on your performance across all activities, here are key insights:
-                                </p>
+                                <div className="flex items-center justify-between gap-4 mb-2">
+                                    <p className="text-slate-600 dark:text-slate-400">
+                                        Based on your performance across all activities, here are key insights:
+                                    </p>
+                                    {resultData.aiSummary?.insights && isTTSSupported() && (
+                                        <motion.button
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            onClick={() => {
+                                                const summaryText = resultData.aiSummary.insights.join('. ');
+                                                if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+                                                    window.speechSynthesis.cancel();
+                                                }
+                                                playRepeatedTTS(summaryText, 2, 1200).catch((err) => {
+                                                    console.warn('Failed to play repeated TTS:', err);
+                                                });
+                                            }}
+                                            className="px-4 py-2 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 shadow-lg hover:shadow-xl transition-all flex items-center gap-2 flex-shrink-0"
+                                            title="Hear summary again (plays twice)"
+                                        >
+                                            <Volume2 className="w-5 h-5" />
+                                            <span className="text-sm font-medium">🔊 Hear Again</span>
+                                        </motion.button>
+                                    )}
+                                </div>
                                 <ul className="space-y-3">
                                     {resultData.aiSummary.insights.map((insight, index) => (
                                         <motion.li

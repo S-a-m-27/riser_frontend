@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Play, HelpCircle, Info, Droplets, ArrowRight, Loader2, Home, MapPin, Building2, Check, Users, LogIn } from 'lucide-react';
+import { Play, HelpCircle, Info, Droplets, ArrowRight, Loader2, Home, MapPin, Building2, Check, Users } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/Dialog';
@@ -18,9 +18,6 @@ const SimulationIntro: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [selectedSceneType, setSelectedSceneType] = useState<'home' | 'street' | 'upper_floor' | null>(null);
     const [isMultiplayer, setIsMultiplayer] = useState(false);
-    const [showJoinDialog, setShowJoinDialog] = useState(false);
-    const [joinSessionId, setJoinSessionId] = useState('');
-    const [isJoining, setIsJoining] = useState(false);
 
     const handleStartSimulation = async (sceneType: 'home' | 'street' | 'upper_floor') => {
         if (!sceneType) return;
@@ -62,15 +59,9 @@ const SimulationIntro: React.FC = () => {
             // Store session ID
             localStorage.setItem('simulation_session_id', sessionId);
 
-            // If multiplayer, show session ID in a notification
+            // If multiplayer, inform user about invitations
             if (isMultiplayer) {
-                // Copy to clipboard automatically
-                try {
-                    await navigator.clipboard.writeText(sessionId);
-                    toast.success(`Multiplayer session created! Session ID: ${sessionId} (Copied to clipboard). Share this ID with others to join your session.`, 5000);
-                } catch (err) {
-                    toast.success(`Multiplayer session created! Session ID: ${sessionId}. Share this ID with others to join your session.`, 5000);
-                }
+                toast.success('Multiplayer session created! You can invite friends from the simulation screen.', 5000);
             }
 
             // Navigate to simulation live with session_id
@@ -84,53 +75,6 @@ const SimulationIntro: React.FC = () => {
         }
     };
 
-    const handleJoinSession = async () => {
-        if (!joinSessionId.trim()) {
-            setError('Please enter a session ID');
-            return;
-        }
-
-        setIsJoining(true);
-        setError(null);
-
-        try {
-            const token = localStorage.getItem('access_token');
-            if (!token) {
-                navigate(ROUTES.AUTH.LOGIN);
-                return;
-            }
-
-            const response = await fetch(`${API_BASE_URL}/simulation/${joinSessionId}/join`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (!response.ok) {
-                if (response.status === 401) {
-                    localStorage.removeItem('access_token');
-                    navigate(ROUTES.AUTH.LOGIN);
-                    return;
-                }
-                const errorData = await response.json();
-                throw new Error(errorData.detail || 'Failed to join session');
-            }
-
-            // Store session ID and navigate
-            localStorage.setItem('simulation_session_id', joinSessionId);
-            setShowJoinDialog(false);
-            setJoinSessionId('');
-            navigate(`${ROUTES.SIMULATION.LIVE}?session_id=${joinSessionId}`);
-
-        } catch (err) {
-            console.error('Error joining session:', err);
-            setError((err as Error).message || 'Failed to join session');
-        } finally {
-            setIsJoining(false);
-        }
-    };
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -181,7 +125,7 @@ const SimulationIntro: React.FC = () => {
                             Flood Scenario Simulation
                         </h1>
                         <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-                            A 20-minute interactive flood survival experience.
+                            A 10-minute interactive flood survival experience.
                         </p>
                     </motion.div>
 
@@ -354,7 +298,7 @@ const SimulationIntro: React.FC = () => {
                         <div className="flex items-start gap-3">
                             <Info className="w-5 h-5 md:w-6 md:h-6 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
                             <p className="text-sm md:text-base text-blue-800 dark:text-blue-200">
-                                This simulation may take up to 20 minutes.
+                                This simulation may take up to 10 minutes.
                             </p>
                         </div>
                     </motion.div>
@@ -386,7 +330,7 @@ const SimulationIntro: React.FC = () => {
                                                 Multiplayer Mode
                                             </h3>
                                             <p className="text-sm text-slate-600 dark:text-slate-400">
-                                                Play with friends! Enable multiplayer to create a session that others can join.
+                                                Play with friends! Enable multiplayer to create a session and invite others to join.
                                             </p>
                                         </div>
                                     </div>
@@ -435,7 +379,7 @@ const SimulationIntro: React.FC = () => {
                                         <div className="flex items-start gap-2 text-sm text-purple-700 dark:text-purple-300">
                                             <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
                                             <p>
-                                                When you start the simulation, you'll receive a Session ID. Share this ID with others so they can join your session using the "Join Session" button below.
+                                                When you start the simulation, you can invite friends directly from the simulation screen. They'll receive invitations on their dashboard to join your session.
                                             </p>
                                         </div>
                                     </motion.div>
@@ -608,93 +552,8 @@ const SimulationIntro: React.FC = () => {
                         </motion.div>
                     </motion.div>
 
-                    {/* Join Session Button */}
-                    <motion.div
-                        variants={itemVariants}
-                        className="flex justify-center pt-2"
-                    >
-                        <motion.div
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            <Button
-                                size="lg"
-                                variant="outline"
-                                onClick={() => setShowJoinDialog(true)}
-                                className="w-full sm:w-auto min-w-[200px] h-14 text-base font-semibold border-2 border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all duration-300"
-                            >
-                                <span className="flex items-center justify-center gap-2">
-                                    <Users className="w-5 h-5" />
-                                    Join Session
-                                </span>
-                            </Button>
-                        </motion.div>
-                    </motion.div>
                 </motion.div>
             </div>
-
-            {/* Join Session Dialog */}
-            <Dialog open={showJoinDialog} onOpenChange={setShowJoinDialog}>
-                <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                        <DialogTitle className="text-2xl font-bold flex items-center gap-2">
-                            <LogIn className="w-6 h-6" />
-                            Join Multiplayer Session
-                        </DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4 py-4">
-                        <div>
-                            <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">
-                                Session ID
-                            </label>
-                            <input
-                                type="text"
-                                value={joinSessionId}
-                                onChange={(e) => setJoinSessionId(e.target.value)}
-                                placeholder="Enter session ID..."
-                                className="w-full px-4 py-2 border-2 border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-800 dark:text-slate-100"
-                            />
-                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                Ask the session creator for the session ID
-                            </p>
-                        </div>
-                        {error && (
-                            <div className="p-3 bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 rounded-lg">
-                                <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
-                            </div>
-                        )}
-                        <div className="flex gap-3">
-                            <Button
-                                onClick={handleJoinSession}
-                                disabled={isJoining || !joinSessionId.trim()}
-                                className="flex-1"
-                            >
-                                {isJoining ? (
-                                    <>
-                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                        Joining...
-                                    </>
-                                ) : (
-                                    <>
-                                        <LogIn className="w-4 h-4 mr-2" />
-                                        Join
-                                    </>
-                                )}
-                            </Button>
-                            <Button
-                                variant="outline"
-                                onClick={() => {
-                                    setShowJoinDialog(false);
-                                    setJoinSessionId('');
-                                    setError(null);
-                                }}
-                            >
-                                Cancel
-                            </Button>
-                        </div>
-                    </div>
-                </DialogContent>
-            </Dialog>
         </div>
     );
 };

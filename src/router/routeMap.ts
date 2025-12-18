@@ -17,6 +17,7 @@ export const ROUTES = {
 
     // Settings Routes
     SETTINGS: {
+        USER: '/settings',
         PARENTAL_CONTROLS: '/settings/parental-controls',
     },
 

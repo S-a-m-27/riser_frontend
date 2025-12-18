@@ -9,6 +9,7 @@ import { cn } from '../../lib/utils';
 import { useConfetti } from '../../hooks/useConfetti';
 import { playSuccess, playFail, playLevelUp } from '../../utils/sound';
 import { useTextToSpeech } from '../../hooks/useTextToSpeech';
+import { playRepeatedTTS, isTTSSupported, isSpeechSpeaking } from '../../utils/repeatTTS';
 import { API_BASE_URL } from '../../config/api';
 
 // API Response Types
@@ -216,6 +217,28 @@ const FloodQuizResult: React.FC = () => {
 
         fetchAIFeedback();
     }, [attemptId, attemptDetail]);
+
+    // Auto-play AI feedback with repetition when it becomes available
+    useEffect(() => {
+        // Don't start new speech if speech is already playing
+        if (isSpeechSpeaking()) {
+            console.log('[QuizResult] Speech already playing, skipping auto-play');
+            return;
+        }
+
+        if (aiFeedback && isTTSSupported()) {
+            // Small delay to ensure UI is ready
+            const timer = setTimeout(() => {
+                // Double-check speech isn't playing before starting
+                if (!isSpeechSpeaking()) {
+                    playRepeatedTTS(aiFeedback, 2, 1200).catch((err) => {
+                        console.warn('Failed to play repeated TTS:', err);
+                    });
+                }
+            }, 500);
+            return () => clearTimeout(timer);
+        }
+    }, [aiFeedback]);
 
     // Calculate percentage
     const percentage = attemptDetail ? attemptDetail.score : 0;
@@ -579,61 +602,25 @@ const FloodQuizResult: React.FC = () => {
                                             <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
                                                 ✨ Personalized Learning Feedback
                                             </h3>
-                                            {aiFeedback && isSupported && (
-                                                <div className="flex items-center gap-2">
-                                                    {isSpeaking ? (
-                                                        <div className="flex items-center gap-2">
-                                                            {isPaused ? (
-                                                                <motion.button
-                                                                    whileHover={{ scale: 1.1 }}
-                                                                    whileTap={{ scale: 0.9 }}
-                                                                    onClick={resume}
-                                                                    className="p-2 rounded-xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors shadow-md"
-                                                                    title="Resume reading"
-                                                                >
-                                                                    <Volume2 className="w-5 h-5" />
-                                                                </motion.button>
-                                                            ) : (
-                                                                <motion.button
-                                                                    whileHover={{ scale: 1.1 }}
-                                                                    whileTap={{ scale: 0.9 }}
-                                                                    onClick={pause}
-                                                                    className="p-2 rounded-xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors shadow-md"
-                                                                    title="Pause reading"
-                                                                >
-                                                                    <Pause className="w-5 h-5" />
-                                                                </motion.button>
-                                                            )}
-                                                            <motion.button
-                                                                whileHover={{ scale: 1.1 }}
-                                                                whileTap={{ scale: 0.9 }}
-                                                                onClick={stop}
-                                                                className="p-2 rounded-xl bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors shadow-md"
-                                                                title="Stop reading"
-                                                            >
-                                                                <VolumeX className="w-5 h-5" />
-                                                            </motion.button>
-                                                            <motion.span
-                                                                animate={{ opacity: [1, 0.5, 1] }}
-                                                                transition={{ duration: 1.5, repeat: Infinity }}
-                                                                className="text-sm text-blue-600 dark:text-blue-400 font-medium"
-                                                            >
-                                                                🔊 Reading...
-                                                            </motion.span>
-                                                        </div>
-                                                    ) : (
-                                                        <motion.button
-                                                            whileHover={{ scale: 1.1 }}
-                                                            whileTap={{ scale: 0.9 }}
-                                                            onClick={() => speak(aiFeedback)}
-                                                            className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
-                                                            title="Read feedback aloud"
-                                                        >
-                                                            <Volume2 className="w-5 h-5" />
-                                                            <span className="text-sm font-medium hidden sm:inline">Listen</span>
-                                                        </motion.button>
-                                                    )}
-                                                </div>
+                                            {aiFeedback && isTTSSupported() && (
+                                                <motion.button
+                                                    whileHover={{ scale: 1.05 }}
+                                                    whileTap={{ scale: 0.95 }}
+                                                    onClick={() => {
+                                                        // Cancel any ongoing speech and start repeated playback
+                                                        if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+                                                            window.speechSynthesis.cancel();
+                                                        }
+                                                        playRepeatedTTS(aiFeedback, 2, 1200).catch((err) => {
+                                                            console.warn('Failed to play repeated TTS:', err);
+                                                        });
+                                                    }}
+                                                    className="px-4 py-2 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
+                                                    title="Hear feedback again (plays twice)"
+                                                >
+                                                    <Volume2 className="w-5 h-5" />
+                                                    <span className="text-sm font-medium">🔊 Hear Again</span>
+                                                </motion.button>
                                             )}
                                         </div>
                                         

@@ -129,6 +129,20 @@ const Landing: React.FC = () => {
                         animate="visible"
                         className="text-center max-w-4xl mx-auto space-y-8"
                     >
+                        {/* RISER Logo */}
+                        <motion.div
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2, duration: 0.6 }}
+                            className="flex justify-center mb-8"
+                        >
+                            <img 
+                                src="/images/riserLogo.jpg" 
+                                alt="RISER Logo" 
+                                className="h-24 md:h-32 lg:h-40 w-auto"
+                            />
+                        </motion.div>
+
                         {/* AI-Powered Badge */}
                         <motion.div
                             initial={{ opacity: 0, scale: 0.8 }}

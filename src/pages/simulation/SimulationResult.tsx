@@ -16,6 +16,7 @@ import {
     ArrowLeft,
     Loader2,
     AlertTriangle,
+    Volume2,
 } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
@@ -26,6 +27,7 @@ import { useMotionValue, useTransform, animate } from 'framer-motion';
 import { useConfetti } from '../../hooks/useConfetti';
 
 import { API_BASE_URL } from '../../config/api';
+import { playRepeatedTTS, isTTSSupported, isSpeechSpeaking } from '../../utils/repeatTTS';
 
 // API Types - Updated to match new backend format
 interface SimulationScores {
@@ -141,6 +143,20 @@ const SimulationResult: React.FC = () => {
             }
             
             setResultData(data);
+            
+            // Auto-play summary with repetition when it becomes available
+            if (data.summary && isTTSSupported() && !isSpeechSpeaking()) {
+                const summaryText = `${data.summary.title}. ${data.summary.subtitle || ''}`;
+                // Small delay to ensure UI is ready
+                setTimeout(() => {
+                    // Double-check speech isn't playing before starting
+                    if (!isSpeechSpeaking()) {
+                        playRepeatedTTS(summaryText, 2, 1200).catch((err) => {
+                            console.warn('Failed to play repeated TTS:', err);
+                        });
+                    }
+                }, 1500);
+            }
             
             // Animate score counting and play sounds
             setTimeout(() => {
@@ -317,6 +333,28 @@ const SimulationResult: React.FC = () => {
                                                 ? 'Amazing work! Here\'s how you did!'
                                                 : 'Every try makes you better! Here\'s what you learned.')}
                                         </p>
+                                        {resultData?.summary && isTTSSupported() && (
+                                            <div className="mt-4 flex justify-center">
+                                                <motion.button
+                                                    whileHover={{ scale: 1.05 }}
+                                                    whileTap={{ scale: 0.95 }}
+                                                    onClick={() => {
+                                                        const summaryText = `${resultData.summary.title}. ${resultData.summary.subtitle || ''}`;
+                                                        if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+                                                            window.speechSynthesis.cancel();
+                                                        }
+                                                        playRepeatedTTS(summaryText, 2, 1200).catch((err) => {
+                                                            console.warn('Failed to play repeated TTS:', err);
+                                                        });
+                                                    }}
+                                                    className="px-4 py-2 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
+                                                    title="Hear summary again (plays twice)"
+                                                >
+                                                    <Volume2 className="w-5 h-5" />
+                                                    <span className="text-sm font-medium">🔊 Hear Again</span>
+                                                </motion.button>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </CardContent>

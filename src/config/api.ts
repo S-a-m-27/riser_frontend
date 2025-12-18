@@ -12,16 +12,16 @@ const getApiBaseUrl = (): string => {
   const normalizeUrl = (url: string): string => {
     // Remove any trailing slashes
     url = url.trim().replace(/\/+$/, '');
-    
+
     // If URL doesn't start with http:// or https://, add https://
     if (!url.match(/^https?:\/\//i)) {
       console.warn('[API Config] URL missing protocol, adding https://');
       url = `https://${url}`;
     }
-    
+
     return url;
   };
-  
+
   // Check for environment variable first
   if (import.meta.env.VITE_API_URL) {
     const envUrl = import.meta.env.VITE_API_URL.trim();
@@ -30,9 +30,10 @@ const getApiBaseUrl = (): string => {
     console.log('[API Config] Using VITE_API_URL from environment (normalized):', normalizedUrl);
     return normalizedUrl;
   }
-  
+
   // Production backend domain
   const defaultUrl = 'https://riserbackend-production.up.railway.app';
+  // const defaultUrl = 'http://127.0.0.1:8000';
   console.log('[API Config] Using default production URL:', defaultUrl);
   console.log('[API Config] VITE_API_URL not set, falling back to:', defaultUrl);
   return defaultUrl;

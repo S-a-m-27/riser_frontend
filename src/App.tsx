@@ -22,7 +22,9 @@ import FinalResults from './pages/results/FinalResults';
 import Leaderboard from './pages/leaderboard/Leaderboard';
 import Certificate from './pages/certificate/Certificate';
 import ParentalControls from './pages/settings/ParentalControls';
+import UserSettings from './pages/settings/UserSettings';
 import HelpBubble from './components/HelpBubble';
+import AppLayout from './components/layout/AppLayout';
 import { ToastProvider } from './contexts/ToastContext';
 import { ROUTES } from './router/routeMap';
 import { initSounds } from './utils/sound';
@@ -39,7 +41,8 @@ const App: React.FC = () => {
                 {/* Help Bubble - Always visible */}
                 <HelpBubble />
 
-            <Routes>
+                <AppLayout>
+                    <Routes>
                 <Route path={ROUTES.LANDING} element={<Landing />} />
                 <Route path={ROUTES.AUTH.LOGIN} element={<Login />} />
                 <Route path={ROUTES.AUTH.SIGNUP} element={<Signup />} />
@@ -62,8 +65,10 @@ const App: React.FC = () => {
                 <Route path={ROUTES.RESULTS.FINAL} element={<FinalResults />} />
                 <Route path={ROUTES.RESULTS.CERTIFICATE} element={<Certificate />} />
                 <Route path={ROUTES.LEADERBOARD} element={<Leaderboard />} />
+                <Route path={ROUTES.SETTINGS.USER} element={<UserSettings />} />
                 <Route path={ROUTES.SETTINGS.PARENTAL_CONTROLS} element={<ParentalControls />} />
-            </Routes>
+                    </Routes>
+                </AppLayout>
             </BrowserRouter>
         </ToastProvider>
     );
