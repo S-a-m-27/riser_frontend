@@ -1,19 +1,18 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Lock, LogIn } from 'lucide-react';
+import { Mail, ArrowLeft, CheckCircle } from 'lucide-react';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 import { ROUTES } from '../../router/routeMap';
-
 import { API_BASE_URL } from '../../config/api';
 
-const Login: React.FC = () => {
+const ForgotPassword: React.FC = () => {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string>('');
+    const [success, setSuccess] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -21,10 +20,10 @@ const Login: React.FC = () => {
         setIsLoading(true);
 
         try {
-            console.log('API: Login request', { email });
-            const apiUrl = `${API_BASE_URL}/api/auth/login`;
-            console.log('[Login API] Base URL:', API_BASE_URL);
-            console.log('[Login API] Full URL:', apiUrl);
+            console.log('API: Forgot password request', { email });
+            const apiUrl = `${API_BASE_URL}/api/auth/forgot-password`;
+            console.log('[ForgotPassword API] Full URL:', apiUrl);
+            
             const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: {
@@ -32,63 +31,103 @@ const Login: React.FC = () => {
                 },
                 body: JSON.stringify({
                     email: email.trim(),
-                    password: password,
                 }),
             });
 
             const data = await response.json();
 
             if (!response.ok) {
-                // Check if email is not verified
-                if (response.status === 403 && data.detail?.includes('not verified')) {
-                    // Check if verification code was resent
-                    const codeResent = data.detail?.includes('new verification code has been sent');
-                    
-                    // Store email and redirect to verify page
-                    localStorage.setItem('pendingVerificationEmail', email.trim());
-                    
-                    // Show appropriate message
-                    if (codeResent) {
-                        // Code was resent - set flag for verify page to show success message
-                        localStorage.setItem('verificationCodeResent', 'true');
-                        setError('A new verification code has been sent to your email. Redirecting to verification page...');
-                    } else {
-                        // Code was not resent (rate limit or error)
-                        setError(data.detail || 'Email not verified. Please verify your email before logging in.');
-                    }
-                    
-                    // Redirect to verify page after a short delay to show message
-                    setTimeout(() => {
-                        navigate('/verify');
-                    }, 2000);
-                    return;
+                if (response.status === 429) {
+                    throw new Error(data.detail || 'Please wait before requesting another reset link');
                 }
-                throw new Error(data.detail || 'Login failed');
+                throw new Error(data.detail || 'Failed to send reset email');
             }
 
-            console.log('API: Login success', { email: data.user.email });
-
-            // Store token and user data
-            localStorage.setItem('access_token', data.access_token);
-            localStorage.setItem('user', JSON.stringify(data.user));
-
-            // Check if user has selected avatar (first-time login)
-            if (!data.user.has_selected_avatar) {
-                // First-time user: redirect to avatar selection
-                console.log('First-time user, redirecting to avatar selection');
-                navigate(ROUTES.AUTH.SELECT_AVATAR);
-            } else {
-                // Returning user: redirect to dashboard
-                console.log('Returning user, redirecting to dashboard');
-                navigate(ROUTES.DASHBOARD);
-            }
+            console.log('API: Password reset email sent successfully');
+            setSuccess(true);
         } catch (error: any) {
-            console.error('API: Login error', error);
-            setError(error.message || 'Failed to login. Please check your credentials.');
+            console.error('API: Forgot password error', error);
+            setError(error.message || 'Failed to send reset email. Please try again.');
         } finally {
             setIsLoading(false);
         }
     };
+
+    if (success) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-green-50 to-yellow-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 px-4 py-12 relative overflow-hidden">
+                {/* Background decorative elements */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                    <motion.div
+                        animate={{
+                            y: [0, -20, 0],
+                            rotate: [0, 5, 0],
+                        }}
+                        transition={{
+                            duration: 8,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                        }}
+                        className="absolute top-20 left-10 w-32 h-32 bg-blue-200/30 dark:bg-blue-800/20 rounded-full blur-2xl"
+                    />
+                    <motion.div
+                        animate={{
+                            y: [0, 20, 0],
+                            rotate: [0, -5, 0],
+                        }}
+                        transition={{
+                            duration: 10,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                        }}
+                        className="absolute bottom-20 right-10 w-40 h-40 bg-green-200/30 dark:bg-green-800/20 rounded-full blur-2xl"
+                    />
+                </div>
+
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5 }}
+                    className="w-full max-w-md relative z-10"
+                >
+                    <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-3xl shadow-2xl p-8 space-y-6 border border-green-100 dark:border-green-800">
+                        <div className="text-center space-y-4">
+                            <motion.div
+                                initial={{ scale: 0, rotate: -180 }}
+                                animate={{ scale: 1, rotate: 0 }}
+                                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                                className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl mb-4 shadow-lg"
+                            >
+                                <CheckCircle className="w-10 h-10 text-white" />
+                            </motion.div>
+                            <h1 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                                Check Your Email! 📧
+                            </h1>
+                            <p className="text-lg text-slate-600 dark:text-slate-400">
+                                If an account with <strong>{email}</strong> exists, we've sent a password reset link to your email.
+                            </p>
+                            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                                <p className="text-sm text-blue-800 dark:text-blue-200">
+                                    💡 <strong>Tip:</strong> Check your spam folder if you don't see the email. The reset link expires in 30 minutes.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col gap-3">
+                            <Button
+                                onClick={() => navigate(ROUTES.AUTH.LOGIN)}
+                                className="w-full h-12 text-base font-semibold bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-400 hover:to-green-400"
+                                size="lg"
+                            >
+                                <ArrowLeft className="w-5 h-5 mr-2" />
+                                Back to Login
+                            </Button>
+                        </div>
+                    </div>
+                </motion.div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-green-50 to-yellow-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 px-4 py-12 relative overflow-hidden">
@@ -118,18 +157,6 @@ const Login: React.FC = () => {
                     }}
                     className="absolute bottom-20 right-10 w-40 h-40 bg-green-200/30 dark:bg-green-800/20 rounded-full blur-2xl"
                 />
-                <motion.div
-                    animate={{
-                        scale: [1, 1.2, 1],
-                        opacity: [0.3, 0.5, 0.3],
-                    }}
-                    transition={{
-                        duration: 6,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                    }}
-                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-yellow-200/20 dark:bg-yellow-800/10 rounded-full blur-3xl"
-                />
             </div>
 
             <motion.div
@@ -147,13 +174,13 @@ const Login: React.FC = () => {
                             transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
                             className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-green-500 rounded-2xl mb-4 shadow-lg"
                         >
-                            <LogIn className="w-10 h-10 text-white" />
+                            <Mail className="w-10 h-10 text-white" />
                         </motion.div>
                         <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
-                            Welcome Back!
+                            Forgot Password?
                         </h1>
                         <p className="text-lg text-slate-600 dark:text-slate-400">
-                            Great to see you again! Let's continue your resilience journey.
+                            No worries! Enter your email and we'll send you a link to reset your password.
                         </p>
                     </div>
 
@@ -165,7 +192,7 @@ const Login: React.FC = () => {
                                 htmlFor="email"
                                 className="text-sm font-medium text-slate-700 dark:text-slate-300"
                             >
-                                Email
+                                Email Address
                             </label>
                             <div className="relative">
                                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
@@ -181,36 +208,6 @@ const Login: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Password Input */}
-                        <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                                <label
-                                    htmlFor="password"
-                                    className="text-sm font-medium text-slate-700 dark:text-slate-300"
-                                >
-                                    Password
-                                </label>
-                                <Link
-                                    to={ROUTES.AUTH.FORGOT_PASSWORD}
-                                    className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
-                                >
-                                    Forgot Password?
-                                </Link>
-                            </div>
-                            <div className="relative">
-                                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
-                                <Input
-                                    id="password"
-                                    type="password"
-                                    placeholder="Enter your password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    required
-                                    className="pl-10"
-                                />
-                            </div>
-                        </div>
-
                         {/* Error Message */}
                         {error && (
                             <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
@@ -218,29 +215,26 @@ const Login: React.FC = () => {
                             </div>
                         )}
 
-                        {/* Login Button */}
+                        {/* Submit Button */}
                         <Button
                             type="submit"
                             className="w-full h-12 text-base font-semibold bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-400 hover:to-green-400 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
                             size="lg"
                             disabled={isLoading}
                         >
-                            <LogIn className="w-5 h-5 mr-2" />
-                            {isLoading ? 'Signing In...' : 'Sign In'}
+                            {isLoading ? 'Sending...' : 'Send Reset Link'}
                         </Button>
                     </form>
 
-                    {/* Sign Up Link */}
+                    {/* Back to Login Link */}
                     <div className="text-center pt-4 border-t border-slate-200 dark:border-slate-700">
-                        <p className="text-sm text-slate-600 dark:text-slate-400">
-                            Don't have an account?{' '}
-                            <Link
-                                to="/signup"
-                                className="text-blue-600 dark:text-blue-400 font-medium hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
-                            >
-                                Sign up
-                            </Link>
-                        </p>
+                        <Link
+                            to={ROUTES.AUTH.LOGIN}
+                            className="inline-flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 font-medium hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+                        >
+                            <ArrowLeft className="w-4 h-4" />
+                            Back to Login
+                        </Link>
                     </div>
                 </div>
             </motion.div>
@@ -248,4 +242,5 @@ const Login: React.FC = () => {
     );
 };
 
-export default Login;
+export default ForgotPassword;
+

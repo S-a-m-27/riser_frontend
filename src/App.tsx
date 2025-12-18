@@ -5,6 +5,8 @@ import Login from './pages/auth/Login';
 import Signup from './pages/auth/Signup';
 import VerifyEmail from './pages/auth/VerifyEmail';
 import SelectAvatar from './pages/auth/SelectAvatar';
+import ForgotPassword from './pages/auth/ForgotPassword';
+import ResetPassword from './pages/auth/ResetPassword';
 import Dashboard from './pages/dashboard/Dashboard';
 import FloodIntro from './pages/modules/FloodIntro';
 import FloodLesson from './pages/lesson/FloodLesson';
@@ -48,6 +50,8 @@ const App: React.FC = () => {
                 <Route path={ROUTES.AUTH.SIGNUP} element={<Signup />} />
                 <Route path={ROUTES.AUTH.VERIFY_EMAIL} element={<VerifyEmail />} />
                 <Route path={ROUTES.AUTH.SELECT_AVATAR} element={<SelectAvatar />} />
+                <Route path={ROUTES.AUTH.FORGOT_PASSWORD} element={<ForgotPassword />} />
+                <Route path={ROUTES.AUTH.RESET_PASSWORD} element={<ResetPassword />} />
                 <Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
                 <Route path={ROUTES.MODULES.FLOOD_INTRO} element={<FloodIntro />} />
                 <Route path={ROUTES.MODULES.LESSON_FLOOD} element={<FloodLesson />} />

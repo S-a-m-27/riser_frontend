@@ -236,7 +236,7 @@ const FloodQuizResult: React.FC = () => {
         return () => clearInterval(interval);
     }, []);
 
-    // Auto-play AI feedback with repetition when it becomes available
+    // Auto-play AI feedback once when it becomes available
     useEffect(() => {
         // Don't start new speech if speech is already playing or if muted
         if (isSpeechSpeaking() || isMuted) {
@@ -254,13 +254,14 @@ const FloodQuizResult: React.FC = () => {
                 // Double-check speech isn't playing and not muted before starting
                 if (!isSpeechSpeaking() && !isMuted) {
                     setIsPlaying(true);
-                    playRepeatedTTS(aiFeedback, 2, 1200)
+                    // Play only once instead of repeating
+                    playRepeatedTTS(aiFeedback, 1, 0)
                         .then(() => {
                             setIsPlaying(false);
                             setIsPaused(false);
                         })
                         .catch((err) => {
-                            console.warn('Failed to play repeated TTS:', err);
+                            console.warn('Failed to play TTS:', err);
                             setIsPlaying(false);
                             setIsPaused(false);
                         });
@@ -725,23 +726,23 @@ const FloodQuizResult: React.FC = () => {
                                                                 if (isMuted) {
                                                                     setIsMuted(false);
                                                                 }
-                                                                // Cancel any ongoing speech and start repeated playback
+                                                                // Cancel any ongoing speech and start playback once
                                                                 stopSpeech();
                                                                 setIsPlaying(true);
                                                                 setIsPaused(false);
-                                                                playRepeatedTTS(aiFeedback, 2, 1200)
+                                                                playRepeatedTTS(aiFeedback, 1, 0)
                                                                     .then(() => {
                                                                         setIsPlaying(false);
                                                                         setIsPaused(false);
                                                                     })
                                                                     .catch((err) => {
-                                                                        console.warn('Failed to play repeated TTS:', err);
+                                                                        console.warn('Failed to play TTS:', err);
                                                                         setIsPlaying(false);
                                                                         setIsPaused(false);
                                                                     });
                                                             }}
                                                             className="px-4 py-2 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
-                                                            title="Hear feedback again (plays twice)"
+                                                            title="Hear feedback again"
                                                         >
                                                             <Volume2 className="w-5 h-5" />
                                                             <span className="text-sm font-medium">🔊 Hear Again</span>

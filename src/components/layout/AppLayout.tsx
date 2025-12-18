@@ -20,6 +20,8 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         ROUTES.AUTH.SIGNUP,
         ROUTES.AUTH.VERIFY_EMAIL,
         ROUTES.AUTH.SELECT_AVATAR,
+        ROUTES.AUTH.FORGOT_PASSWORD,
+        ROUTES.AUTH.RESET_PASSWORD,
         ROUTES.SIMULATION.LIVE,
     ];
 

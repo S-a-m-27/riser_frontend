@@ -22,6 +22,8 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children, className }) => {
         ROUTES.AUTH.SIGNUP,
         ROUTES.AUTH.VERIFY_EMAIL,
         ROUTES.AUTH.SELECT_AVATAR,
+        ROUTES.AUTH.FORGOT_PASSWORD,
+        ROUTES.AUTH.RESET_PASSWORD,
     ];
 
     const hasSidebar = !hideSidebarRoutes.includes(location.pathname as any);

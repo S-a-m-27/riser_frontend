@@ -13,6 +13,8 @@ export const ROUTES = {
         SIGNUP: '/signup',
         VERIFY_EMAIL: '/verify',
         SELECT_AVATAR: '/avatar',
+        FORGOT_PASSWORD: '/forgot-password',
+        RESET_PASSWORD: '/reset-password',
     },
 
     // Settings Routes
