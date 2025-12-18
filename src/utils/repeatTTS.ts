@@ -248,3 +248,13 @@ export function isSpeechSpeaking(): boolean {
     return window.speechSynthesis.speaking;
 }
 
+/**
+ * Stop all ongoing speech synthesis
+ * Call this when navigating away from a page or when speech should be cancelled
+ */
+export function stopSpeech(): void {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+    }
+}
+

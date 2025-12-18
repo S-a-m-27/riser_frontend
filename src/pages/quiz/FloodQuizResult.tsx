@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { motion, useMotionValue, useTransform, animate, useMotionValueEvent } from 'framer-motion';
 import { CheckCircle, XCircle, Trophy, ArrowRight, RotateCcw, Sparkles, Loader2, AlertTriangle, Volume2 } from 'lucide-react';
 import Button from '../../components/ui/Button';
@@ -9,7 +9,7 @@ import { cn } from '../../lib/utils';
 import { useConfetti } from '../../hooks/useConfetti';
 import { playSuccess, playFail, playLevelUp } from '../../utils/sound';
 import { useTextToSpeech } from '../../hooks/useTextToSpeech';
-import { playRepeatedTTS, isTTSSupported, isSpeechSpeaking } from '../../utils/repeatTTS';
+import { playRepeatedTTS, isTTSSupported, isSpeechSpeaking, stopSpeech } from '../../utils/repeatTTS';
 import { API_BASE_URL } from '../../config/api';
 
 // API Response Types
@@ -98,6 +98,7 @@ const RadialProgress: React.FC<RadialProgressProps> = ({
 
 const FloodQuizResult: React.FC = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const [searchParams] = useSearchParams();
     const { triggerBurst } = useConfetti(true);
     const { stop } = useTextToSpeech();
@@ -298,10 +299,25 @@ const FloodQuizResult: React.FC = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [attemptDetail?.id, percentage]);
 
+    // Stop speech when navigating away from quiz results page
+    useEffect(() => {
+        // Check if we're still on the quiz results page
+        // The quiz results route is /quiz/flood/result
+        const isOnQuizResultsPage = location.pathname === ROUTES.QUIZ.FLOOD_RESULT;
+        
+        // If we navigated away from quiz results page, stop speech immediately
+        if (!isOnQuizResultsPage) {
+            stop();
+            stopSpeech();
+        }
+    }, [location.pathname, stop]);
+
     // Cleanup: stop speech when component unmounts
     useEffect(() => {
         return () => {
+            // Stop both useTextToSpeech and playRepeatedTTS speech
             stop();
+            stopSpeech();
         };
     }, [stop]);
 
