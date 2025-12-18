@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, useMotionValue, useTransform, animate, useMotionValueEvent } from 'framer-motion';
-import { CheckCircle, XCircle, Trophy, ArrowRight, RotateCcw, Sparkles, Loader2, AlertTriangle, Volume2, VolumeX, Pause } from 'lucide-react';
+import { CheckCircle, XCircle, Trophy, ArrowRight, RotateCcw, Sparkles, Loader2, AlertTriangle, Volume2 } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import { Card, CardContent } from '../../components/ui/Card';
 import { ROUTES } from '../../router/routeMap';
@@ -100,7 +100,7 @@ const FloodQuizResult: React.FC = () => {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const { triggerBurst } = useConfetti(true);
-    const { speak, stop, pause, resume, isSpeaking, isPaused, isSupported } = useTextToSpeech();
+    const { stop } = useTextToSpeech();
     
     // State
     const [attemptDetail, setAttemptDetail] = useState<QuizAttemptDetail | null>(null);

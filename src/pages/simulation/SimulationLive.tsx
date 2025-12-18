@@ -17,7 +17,6 @@ import {
     Info,
     UserPlus,
     Search,
-    X,
     HelpCircle,
     Crown,
     Shield,

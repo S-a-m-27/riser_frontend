@@ -10,7 +10,6 @@ import { useUserStore } from '../../store/userStore';
 import { useAvatarStore } from '../../store/avatarStore';
 import { useToastContext } from '../../contexts/ToastContext';
 import { API_BASE_URL } from '../../config/api';
-import { cn } from '../../lib/utils';
 
 // Avatar generation function (same as SelectAvatar)
 const generateAvatarUrl = (index: number) => {

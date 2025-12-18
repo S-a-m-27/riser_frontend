@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import { Play, HelpCircle, Info, Droplets, ArrowRight, Loader2, Home, MapPin, Building2, Check, Users } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/Dialog';
 import { ROUTES } from '../../router/routeMap';
 import { cn } from '../../lib/utils';
 import { useToastContext } from '../../contexts/ToastContext';
