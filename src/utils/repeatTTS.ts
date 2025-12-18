@@ -258,3 +258,31 @@ export function stopSpeech(): void {
     }
 }
 
+/**
+ * Pause ongoing speech synthesis
+ */
+export function pauseSpeech(): void {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.pause();
+    }
+}
+
+/**
+ * Resume paused speech synthesis
+ */
+export function resumeSpeech(): void {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.resume();
+    }
+}
+
+/**
+ * Check if speech synthesis is currently paused
+ */
+export function isSpeechPaused(): boolean {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+        return false;
+    }
+    return window.speechSynthesis.paused;
+}
+

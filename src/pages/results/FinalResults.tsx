@@ -542,7 +542,10 @@ const FinalResults: React.FC = () => {
                         >
                             <Button
                                 size="lg"
-                                onClick={() => navigate(ROUTES.RESULTS.CERTIFICATE)}
+                                onClick={() => {
+                                    const module = searchParams.get('module') || 'flood';
+                                    navigate(`${ROUTES.RESULTS.CERTIFICATE}?module=${module}`);
+                                }}
                                 className="w-full sm:w-auto min-w-[200px] h-12 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white"
                             >
                                 <span className="flex items-center justify-center gap-2">

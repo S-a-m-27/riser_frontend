@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { motion, useMotionValue, useTransform, animate, useMotionValueEvent } from 'framer-motion';
-import { CheckCircle, XCircle, Trophy, ArrowRight, RotateCcw, Sparkles, Loader2, AlertTriangle, Volume2 } from 'lucide-react';
+import { CheckCircle, XCircle, Trophy, ArrowRight, RotateCcw, Sparkles, Loader2, AlertTriangle, Volume2, Pause, Play, VolumeX } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import { Card, CardContent } from '../../components/ui/Card';
 import { ROUTES } from '../../router/routeMap';
@@ -9,7 +9,7 @@ import { cn } from '../../lib/utils';
 import { useConfetti } from '../../hooks/useConfetti';
 import { playSuccess, playFail, playLevelUp } from '../../utils/sound';
 import { useTextToSpeech } from '../../hooks/useTextToSpeech';
-import { playRepeatedTTS, isTTSSupported, isSpeechSpeaking, stopSpeech } from '../../utils/repeatTTS';
+import { playRepeatedTTS, isTTSSupported, isSpeechSpeaking, stopSpeech, pauseSpeech, resumeSpeech, isSpeechPaused } from '../../utils/repeatTTS';
 import { API_BASE_URL } from '../../config/api';
 
 // API Response Types
@@ -110,6 +110,9 @@ const FloodQuizResult: React.FC = () => {
     const [aiFeedback, setAiFeedback] = useState<string | null>(null);
     const [isLoadingFeedback, setIsLoadingFeedback] = useState(false);
     const [feedbackError, setFeedbackError] = useState<string | null>(null);
+    const [isMuted, setIsMuted] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [isPaused, setIsPaused] = useState(false);
 
     const attemptId = searchParams.get('attempt_id');
 
@@ -219,27 +222,53 @@ const FloodQuizResult: React.FC = () => {
         fetchAIFeedback();
     }, [attemptId, attemptDetail]);
 
+    // Poll speech status to update UI
+    useEffect(() => {
+        if (!isTTSSupported()) return;
+
+        const interval = setInterval(() => {
+            const speaking = isSpeechSpeaking();
+            const paused = isSpeechPaused();
+            setIsPlaying(speaking && !paused);
+            setIsPaused(paused);
+        }, 100); // Check every 100ms
+
+        return () => clearInterval(interval);
+    }, []);
+
     // Auto-play AI feedback with repetition when it becomes available
     useEffect(() => {
-        // Don't start new speech if speech is already playing
-        if (isSpeechSpeaking()) {
-            console.log('[QuizResult] Speech already playing, skipping auto-play');
+        // Don't start new speech if speech is already playing or if muted
+        if (isSpeechSpeaking() || isMuted) {
+            if (isMuted) {
+                console.log('[QuizResult] Speech muted, skipping auto-play');
+            } else {
+                console.log('[QuizResult] Speech already playing, skipping auto-play');
+            }
             return;
         }
 
         if (aiFeedback && isTTSSupported()) {
             // Small delay to ensure UI is ready
             const timer = setTimeout(() => {
-                // Double-check speech isn't playing before starting
-                if (!isSpeechSpeaking()) {
-                    playRepeatedTTS(aiFeedback, 2, 1200).catch((err) => {
-                        console.warn('Failed to play repeated TTS:', err);
-                    });
+                // Double-check speech isn't playing and not muted before starting
+                if (!isSpeechSpeaking() && !isMuted) {
+                    setIsPlaying(true);
+                    playRepeatedTTS(aiFeedback, 2, 1200)
+                        .then(() => {
+                            setIsPlaying(false);
+                            setIsPaused(false);
+                        })
+                        .catch((err) => {
+                            console.warn('Failed to play repeated TTS:', err);
+                            setIsPlaying(false);
+                            setIsPaused(false);
+                        });
                 }
             }, 500);
             return () => clearTimeout(timer);
         }
-    }, [aiFeedback]);
+    }, [aiFeedback, isMuted]);
 
     // Calculate percentage
     const percentage = attemptDetail ? attemptDetail.score : 0;
@@ -619,24 +648,106 @@ const FloodQuizResult: React.FC = () => {
                                                 ✨ Personalized Learning Feedback
                                             </h3>
                                             {aiFeedback && isTTSSupported() && (
-                                                <motion.button
-                                                    whileHover={{ scale: 1.05 }}
-                                                    whileTap={{ scale: 0.95 }}
-                                                    onClick={() => {
-                                                        // Cancel any ongoing speech and start repeated playback
-                                                        if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-                                                            window.speechSynthesis.cancel();
-                                                        }
-                                                        playRepeatedTTS(aiFeedback, 2, 1200).catch((err) => {
-                                                            console.warn('Failed to play repeated TTS:', err);
-                                                        });
-                                                    }}
-                                                    className="px-4 py-2 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
-                                                    title="Hear feedback again (plays twice)"
-                                                >
-                                                    <Volume2 className="w-5 h-5" />
-                                                    <span className="text-sm font-medium">🔊 Hear Again</span>
-                                                </motion.button>
+                                                <div className="flex items-center gap-2">
+                                                    {/* Pause/Resume Button */}
+                                                    {isPlaying ? (
+                                                        <motion.button
+                                                            whileHover={{ scale: 1.05 }}
+                                                            whileTap={{ scale: 0.95 }}
+                                                            onClick={() => {
+                                                                pauseSpeech();
+                                                                setIsPaused(true);
+                                                                setIsPlaying(false);
+                                                            }}
+                                                            className="px-3 py-2 rounded-xl bg-yellow-500 hover:bg-yellow-600 text-white shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
+                                                            title="Pause speech"
+                                                        >
+                                                            <Pause className="w-4 h-4" />
+                                                        </motion.button>
+                                                    ) : isPaused ? (
+                                                        <motion.button
+                                                            whileHover={{ scale: 1.05 }}
+                                                            whileTap={{ scale: 0.95 }}
+                                                            onClick={() => {
+                                                                resumeSpeech();
+                                                                setIsPaused(false);
+                                                                setIsPlaying(true);
+                                                            }}
+                                                            className="px-3 py-2 rounded-xl bg-green-500 hover:bg-green-600 text-white shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
+                                                            title="Resume speech"
+                                                        >
+                                                            <Play className="w-4 h-4" />
+                                                        </motion.button>
+                                                    ) : null}
+                                                    
+                                                    {/* Mute/Unmute Button */}
+                                                    <motion.button
+                                                        whileHover={{ scale: 1.05 }}
+                                                        whileTap={{ scale: 0.95 }}
+                                                        onClick={() => {
+                                                            if (isMuted) {
+                                                                setIsMuted(false);
+                                                                // If speech was paused, resume it
+                                                                if (isPaused) {
+                                                                    resumeSpeech();
+                                                                    setIsPaused(false);
+                                                                    setIsPlaying(true);
+                                                                }
+                                                            } else {
+                                                                setIsMuted(true);
+                                                                // Stop current speech
+                                                                stopSpeech();
+                                                                setIsPlaying(false);
+                                                                setIsPaused(false);
+                                                            }
+                                                        }}
+                                                        className={cn(
+                                                            "px-3 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2",
+                                                            isMuted 
+                                                                ? "bg-red-500 hover:bg-red-600 text-white"
+                                                                : "bg-slate-500 hover:bg-slate-600 text-white"
+                                                        )}
+                                                        title={isMuted ? "Unmute speech" : "Mute speech"}
+                                                    >
+                                                        {isMuted ? (
+                                                            <VolumeX className="w-4 h-4" />
+                                                        ) : (
+                                                            <Volume2 className="w-4 h-4" />
+                                                        )}
+                                                    </motion.button>
+                                                    
+                                                    {/* Play/Hear Again Button */}
+                                                    {!isPlaying && !isPaused && (
+                                                        <motion.button
+                                                            whileHover={{ scale: 1.05 }}
+                                                            whileTap={{ scale: 0.95 }}
+                                                            onClick={() => {
+                                                                if (isMuted) {
+                                                                    setIsMuted(false);
+                                                                }
+                                                                // Cancel any ongoing speech and start repeated playback
+                                                                stopSpeech();
+                                                                setIsPlaying(true);
+                                                                setIsPaused(false);
+                                                                playRepeatedTTS(aiFeedback, 2, 1200)
+                                                                    .then(() => {
+                                                                        setIsPlaying(false);
+                                                                        setIsPaused(false);
+                                                                    })
+                                                                    .catch((err) => {
+                                                                        console.warn('Failed to play repeated TTS:', err);
+                                                                        setIsPlaying(false);
+                                                                        setIsPaused(false);
+                                                                    });
+                                                            }}
+                                                            className="px-4 py-2 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
+                                                            title="Hear feedback again (plays twice)"
+                                                        >
+                                                            <Volume2 className="w-5 h-5" />
+                                                            <span className="text-sm font-medium">🔊 Hear Again</span>
+                                                        </motion.button>
+                                                    )}
+                                                </div>
                                             )}
                                         </div>
                                         

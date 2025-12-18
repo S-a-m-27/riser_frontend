@@ -78,53 +78,10 @@ const Certificate: React.FC = () => {
     const [certificateData, setCertificateData] = useState<CertificateResponse | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [completionCheck, setCompletionCheck] = useState<{
-        isChecking: boolean;
-        allSessionsCompleted: boolean;
-    }>({ isChecking: true, allSessionsCompleted: false });
+    // Removed completion check - let the API handle validation
 
-    // Check if all sessions are completed before fetching certificate
+    // Fetch certificate data - let the API handle validation
     useEffect(() => {
-        const checkCompletion = async () => {
-            const token = localStorage.getItem('access_token');
-            if (!token) {
-                navigate(ROUTES.AUTH.LOGIN);
-                return;
-            }
-
-            try {
-                // Check if module has final results (indicates all sessions completed)
-                const validModule = module.replace(/[^a-z0-9-]/g, '') || 'flood';
-                const finalResultsResponse = await fetch(
-                    `${API_BASE_URL}/api/results/final?module=${validModule}`,
-                    {
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                        },
-                    }
-                );
-
-                // If final results exist, it means all sessions are completed
-                const allSessionsCompleted = finalResultsResponse.ok;
-                
-                setCompletionCheck({ 
-                    isChecking: false, 
-                    allSessionsCompleted 
-                });
-            } catch (err) {
-                console.error('[Certificate] Error checking completion', err);
-                setCompletionCheck({ isChecking: false, allSessionsCompleted: false });
-            }
-        };
-
-        checkCompletion();
-    }, [navigate, module]);
-
-    // Fetch certificate data only if all sessions are completed
-    useEffect(() => {
-        if (completionCheck.isChecking || !completionCheck.allSessionsCompleted) {
-            return;
-        }
 
         const fetchCertificate = async () => {
             console.log('[Certificate] Starting certificate fetch', { module, rawModule });
@@ -218,7 +175,7 @@ const Certificate: React.FC = () => {
 
         fetchCertificate();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [module, completionCheck.allSessionsCompleted]); // Only fetch when all sessions are completed
+    }, [module]); // Fetch certificate when module changes
 
     // Format date helper
     const formatDate = (dateString: string) => {
@@ -324,60 +281,6 @@ const Certificate: React.FC = () => {
         }
     };
 
-    // Checking completion state
-    if (completionCheck.isChecking) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-green-50 to-yellow-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-                <div className="text-center">
-                    <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
-                    <p className="text-slate-600 dark:text-slate-400">Checking completion status...</p>
-                </div>
-            </div>
-        );
-    }
-
-    // If not all sessions completed, show message
-    if (!completionCheck.allSessionsCompleted) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-green-50 to-yellow-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-                <Card variant="elevated" className="max-w-md">
-                    <CardContent className="p-8 text-center">
-                        <AlertTriangle className="w-16 h-16 text-amber-500 mx-auto mb-4" />
-                        <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">
-                            Certificate Not Available Yet
-                        </h2>
-                        <p className="text-slate-600 dark:text-slate-400 mb-4">
-                            To receive your certificate, you need to complete all modules including:
-                        </p>
-                        <ul className="text-left text-slate-600 dark:text-slate-400 mb-6 space-y-2">
-                            <li className="flex items-center gap-2">
-                                <span className="text-amber-500">⚠</span>
-                                <span>Quiz - Pass at least one quiz attempt</span>
-                            </li>
-                            <li className="flex items-center gap-2">
-                                <span className="text-amber-500">⚠</span>
-                                <span>Puzzle - Complete at least one puzzle</span>
-                            </li>
-                            <li className="flex items-center gap-2">
-                                <span className="text-amber-500">⚠</span>
-                                <span>Misinformation Task - Complete the misinformation awareness check</span>
-                            </li>
-                            <li className="flex items-center gap-2">
-                                <span className="text-amber-500">⚠</span>
-                                <span>Simulation - Complete at least one simulation session</span>
-                            </li>
-                        </ul>
-                        <p className="text-sm text-slate-500 dark:text-slate-400 italic">
-                            All modules must be completed before a certificate can be issued.
-                        </p>
-                        <Button onClick={() => navigate(ROUTES.DASHBOARD)}>
-                            Back to Dashboard
-                        </Button>
-                    </CardContent>
-                </Card>
-            </div>
-        );
-    }
 
     // Loading state
     if (isLoading) {

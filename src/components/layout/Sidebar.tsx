@@ -141,7 +141,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onMobileClose, onMobile
     };
 
     const handleNavClick = (route: string) => {
-        navigate(route);
+        // If navigating to certificate, add module parameter (default to 'flood')
+        if (route === ROUTES.RESULTS.CERTIFICATE) {
+            navigate(`${route}?module=flood`);
+        } else {
+            navigate(route);
+        }
         if (isMobile) {
             setMobileOpen(false);
         }
