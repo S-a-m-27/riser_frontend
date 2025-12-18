@@ -32,8 +32,8 @@ const getApiBaseUrl = (): string => {
   }
 
   // Production backend domain
-  // const defaultUrl = 'https://riserbackend-production.up.railway.app';
-  const defaultUrl = 'http://127.0.0.1:8000';
+  const defaultUrl = 'https://riserbackend-production.up.railway.app';
+  // const defaultUrl = 'http://127.0.0.1:8000';
   console.log('[API Config] Using default production URL:', defaultUrl);
   console.log('[API Config] VITE_API_URL not set, falling back to:', defaultUrl);
   return defaultUrl;
