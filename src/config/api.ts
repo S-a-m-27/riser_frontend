@@ -64,3 +64,66 @@ export const logApiRequest = (endpoint: string, method: string = 'GET') => {
   return fullUrl;
 };
 
+/**
+ * Helper function to create fetch requests with proper CORS configuration
+ * @param endpoint - The API endpoint (e.g., '/api/dashboard')
+ * @param options - Fetch options (method, headers, body, etc.)
+ * @returns Promise<Response>
+ */
+export const apiFetch = async (
+  endpoint: string,
+  options: RequestInit = {}
+): Promise<Response> => {
+  const token = localStorage.getItem('access_token');
+  
+  // Ensure endpoint starts with /
+  const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const url = `${API_BASE_URL}${normalizedEndpoint}`;
+  
+  // Default headers
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+    ...options.headers,
+  };
+  
+  // Add authorization token if available
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  
+  // Merge with user-provided options
+  const fetchOptions: RequestInit = {
+    ...options,
+    headers,
+    // Include credentials for CORS when backend has allow_credentials=True
+    credentials: 'include',
+    mode: 'cors',
+  };
+  
+  console.log(`[API Fetch] ${options.method || 'GET'} ${normalizedEndpoint}`);
+  console.log(`[API Fetch] Full URL:`, url);
+  console.log(`[API Fetch] Origin:`, window.location.origin);
+  
+  try {
+    const response = await fetch(url, fetchOptions);
+    
+    // Log CORS-related headers for debugging
+    const corsHeaders = {
+      'Access-Control-Allow-Origin': response.headers.get('Access-Control-Allow-Origin'),
+      'Access-Control-Allow-Credentials': response.headers.get('Access-Control-Allow-Credentials'),
+    };
+    console.log(`[API Fetch] CORS Headers:`, corsHeaders);
+    
+    return response;
+  } catch (error) {
+    console.error(`[API Fetch] Error:`, error);
+    // Check if it's a CORS error
+    if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+      console.error(`[API Fetch] Possible CORS error. Check backend CORS configuration.`);
+      console.error(`[API Fetch] Current origin: ${window.location.origin}`);
+      console.error(`[API Fetch] Backend URL: ${API_BASE_URL}`);
+    }
+    throw error;
+  }
+};
+
