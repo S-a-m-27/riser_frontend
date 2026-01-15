@@ -39,10 +39,10 @@ Vercel should auto-detect your project, but verify these settings:
 ### Optional Variable (Default is already set):
 
 ```bash
-VITE_API_URL=https://riserbackend-production.up.railway.app
+VITE_API_URL=https://web-production-d4f82.up.railway.app
 ```
 
-**Note**: The frontend is already configured to use `https://riserbackend-production.up.railway.app` as the default API URL. You only need to set `VITE_API_URL` if you want to override it (e.g., for a different environment or local development).
+**Note**: The frontend is already configured to use `https://web-production-d4f82.up.railway.app` as the default API URL. You only need to set `VITE_API_URL` if you want to override it (e.g., for a different environment or local development).
 
 ### How to Get Your Backend URL:
 
